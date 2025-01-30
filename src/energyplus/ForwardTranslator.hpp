@@ -337,6 +337,7 @@ namespace model {
   class PythonPluginVariable;
   class PythonPluginTrendVariable;
   class PythonPluginOutputVariable;
+  class PythonPluginSearchPaths;
   class RefractionExtinctionGlazing;
   class RefrigerationAirChiller;
   class RefrigerationCase;
@@ -480,6 +481,7 @@ namespace model {
   class ZoneHVACEnergyRecoveryVentilator;
   class ZoneHVACEnergyRecoveryVentilatorController;
   class ZoneHVACEquipmentList;
+  class ZoneHVACEvaporativeCoolerUnit;
   class ZoneHVACFourPipeFanCoil;
   class ZoneHVACHighTemperatureRadiant;
   class ZoneHVACIdealLoadsAirSystem;
@@ -504,7 +506,7 @@ namespace energyplus {
     struct ForwardTranslatorInitializer;
   };
 
-#define ENERGYPLUS_VERSION "24.1"
+#define ENERGYPLUS_VERSION "24.2"
 
   class ENERGYPLUS_API ForwardTranslator
   {
@@ -1256,6 +1258,8 @@ namespace energyplus {
 
     boost::optional<IdfObject> translatePythonPluginOutputVariable(model::PythonPluginOutputVariable& modelObject);
 
+    boost::optional<IdfObject> translatePythonPluginSearchPaths(model::PythonPluginSearchPaths& modelObject);
+
     boost::optional<IdfObject> translateRefractionExtinctionGlazing(model::RefractionExtinctionGlazing& modelObject);
 
     boost::optional<IdfObject> translateRefrigerationAirChiller(model::RefrigerationAirChiller& modelObject);
@@ -1547,6 +1551,8 @@ namespace energyplus {
     boost::optional<IdfObject> translateZoneHVACEnergyRecoveryVentilatorController(model::ZoneHVACEnergyRecoveryVentilatorController& modelObject);
 
     boost::optional<IdfObject> translateZoneHVACEquipmentList(model::ZoneHVACEquipmentList& modelObject);
+
+    boost::optional<IdfObject> translateZoneHVACEvaporativeCoolerUnit(model::ZoneHVACEvaporativeCoolerUnit& modelObject);
 
     boost::optional<IdfObject> translateZoneHVACFourPipeFanCoil(model::ZoneHVACFourPipeFanCoil& modelObject);
 

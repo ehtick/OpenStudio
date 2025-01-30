@@ -83,7 +83,7 @@ endif()
 
 if(BUILD_TESTING)
   # openstudio_tests is a test target for C++ based tests that extend across multiple
-  # compiled units such as the case for openstudio cli. 
+  # compiled units such as the case for openstudio cli.
   # For example, here is a good place to test issues that are concerned with
   # the complexities of sharing data between the Python and Ruby script engines.
   set(openstudio_tests_src
@@ -124,7 +124,7 @@ if(BUILD_TESTING)
     COMMAND $<TARGET_FILE:openstudio> python_version
   )
   set_tests_properties(OpenStudioCLI.python_version PROPERTIES
-    PASS_REGULAR_EXPRESSION "3\.8\.1[0-9]"
+    PASS_REGULAR_EXPRESSION "3\.12\.[0-9]+"
   )
 
   add_test(NAME OpenStudioCLI.ruby_execute_line
@@ -203,6 +203,11 @@ if(BUILD_TESTING)
     PASS_REGULAR_EXPRESSION "Hello from -x, at National Renewable Energy Laboratory"
   )
 
+  # Test for 5315
+  add_test(NAME OpenStudioCLI.EmbeddedScripting.uuid
+    COMMAND $<TARGET_FILE:openstudio> ${CMAKE_CURRENT_SOURCE_DIR}/test/ensure_uuid_can_be_loaded.rb
+  )
+
   add_test(NAME OpenStudioCLI.Classic.Run_RubyOnly
     COMMAND $<TARGET_FILE:openstudio> classic run -w compact_ruby_only.osw
     WORKING_DIRECTORY "${PROJECT_BINARY_DIR}/resources/Examples/compact_osw/"
@@ -253,6 +258,14 @@ if(BUILD_TESTING)
   )
   set_tests_properties(OpenStudioCLI.Run_PythonRuby PROPERTIES RESOURCE_LOCK "compact_osw")
 
+  add_test(NAME OpenStudioCLI.Run_AlfalfaWorkflow
+    COMMAND ${CMAKE_COMMAND} "-DCMD1=$<TARGET_FILE:openstudio> run -m -w compact_alfalfa.osw"
+    "-DCMD2=${CMAKE_COMMAND} -E cat run/alfalfa.json"
+    -P ${CMAKE_SOURCE_DIR}/CMake/RunCommands.cmake
+    WORKING_DIRECTORY "${PROJECT_BINARY_DIR}/resources/Examples/compact_osw"
+  )
+  set_tests_properties(OpenStudioCLI.Run_AlfalfaWorkflow PROPERTIES RESOURCE_LOCK "compact_osw")
+
   add_test(NAME OpenStudioCLI.Run_RubyPythonPlugin
     COMMAND $<TARGET_FILE:openstudio> run --show-stdout -w python_plugin_jinja_erb.osw
     WORKING_DIRECTORY "${PROJECT_BINARY_DIR}/resources/workflow/python_plugin/"
@@ -261,6 +274,63 @@ if(BUILD_TESTING)
   set_tests_properties(OpenStudioCLI.Run_RubyPythonPlugin PROPERTIES
     PASS_REGULAR_EXPRESSION "HI FROM ERB PYTHON PLUGIN[\r\n\t ]*HI FROM JINJA PYTHON PLUGIN"
   )
+
+  # ======================== Workflows should fail ========================
+  add_test(NAME OpenStudioCLI.Run_Validate.MissingAMeasure
+    COMMAND $<TARGET_FILE:openstudio> run --show-stdout -w missing_a_measure.osw
+    WORKING_DIRECTORY "${PROJECT_BINARY_DIR}/resources/workflow/invalid_measures/"
+  )
+  set_tests_properties(OpenStudioCLI.Run_Validate.MissingAMeasure PROPERTIES
+    WILL_FAIL TRUE
+    RESOURCE_LOCK "invalid_measures"
+  )
+
+  add_test(NAME OpenStudioCLI.Run_Validate.UnloadableMeasure
+    COMMAND $<TARGET_FILE:openstudio> run --show-stdout -w unloadable_measure.osw
+    WORKING_DIRECTORY "${PROJECT_BINARY_DIR}/resources/workflow/invalid_measures/"
+  )
+  set_tests_properties(OpenStudioCLI.Run_Validate.UnloadableMeasure PROPERTIES
+    WILL_FAIL TRUE
+    RESOURCE_LOCK "invalid_measures"
+  )
+
+  add_test(NAME OpenStudioCLI.Run_Validate.WrongMeasureTypeOrder
+    COMMAND $<TARGET_FILE:openstudio> run --show-stdout -w wrong_measure_type_order.osw
+    WORKING_DIRECTORY "${PROJECT_BINARY_DIR}/resources/workflow/invalid_measures/"
+  )
+  set_tests_properties(OpenStudioCLI.Run_Validate.WrongMeasureTypeOrder PROPERTIES
+    WILL_FAIL TRUE
+    RESOURCE_LOCK "invalid_measures"
+  )
+
+  # Classic
+  add_test(NAME OpenStudioCLI.Classic.Run_Validate.MissingAMeasure
+    COMMAND $<TARGET_FILE:openstudio> classic run --show-stdout -w missing_a_measure.osw
+    WORKING_DIRECTORY "${PROJECT_BINARY_DIR}/resources/workflow/invalid_measures/"
+  )
+  set_tests_properties(OpenStudioCLI.Classic.Run_Validate.MissingAMeasure PROPERTIES
+    WILL_FAIL TRUE
+    RESOURCE_LOCK "invalid_measures"
+  )
+
+  add_test(NAME OpenStudioCLI.Classic.Run_Validate.UnloadableMeasure
+    COMMAND $<TARGET_FILE:openstudio> classic run --show-stdout -w unloadable_measure.osw
+    WORKING_DIRECTORY "${PROJECT_BINARY_DIR}/resources/workflow/invalid_measures/"
+  )
+  set_tests_properties(OpenStudioCLI.Classic.Run_Validate.UnloadableMeasure PROPERTIES
+    WILL_FAIL TRUE
+    RESOURCE_LOCK "invalid_measures"
+  )
+
+  add_test(NAME OpenStudioCLI.Classic.Run_Validate.WrongMeasureTypeOrder
+    COMMAND $<TARGET_FILE:openstudio> classic run --show-stdout -w wrong_measure_type_order.osw
+    WORKING_DIRECTORY "${PROJECT_BINARY_DIR}/resources/workflow/invalid_measures/"
+  )
+  set_tests_properties(OpenStudioCLI.Classic.Run_Validate.WrongMeasureTypeOrder PROPERTIES
+    WILL_FAIL TRUE
+    RESOURCE_LOCK "invalid_measures"
+  )
+  # ====================== End Workflows should fail ======================
 
   if (Pytest_AVAILABLE)
     add_test(NAME OpenStudioCLI.test_loglevel

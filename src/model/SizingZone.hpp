@@ -31,7 +31,7 @@ namespace model {
 
     explicit SizingZone(const Model& model, const ThermalZone& thermalZone);
 
-    virtual ~SizingZone() = default;
+    virtual ~SizingZone() override = default;
     // Default the copy and move operators because the virtual dtor is explicit
     SizingZone(const SizingZone& other) = default;
     SizingZone(SizingZone&& other) = default;
@@ -49,6 +49,7 @@ namespace model {
     static std::vector<std::string> zoneLoadSizingMethodValues();
     static std::vector<std::string> zoneLatentCoolingDesignSupplyAirHumidityRatioInputMethodValues();
     static std::vector<std::string> zoneLatentHeatingDesignSupplyAirHumidityRatioInputMethodValues();
+    static std::vector<std::string> validSizingOptionValues();
 
     /** @name Getters */
     //@{
@@ -162,6 +163,8 @@ namespace model {
     double designMinimumZoneVentilationEfficiency() const;
 
     bool isDesignMinimumZoneVentilationEfficiencyDefaulted() const;
+
+    std::string sizingOption() const;
 
     //@}
     /** @name Setters */
@@ -282,6 +285,8 @@ namespace model {
     bool setDesignMinimumZoneVentilationEfficiency(double designMinimumZoneVentilationEfficiency);
 
     void resetDesignMinimumZoneVentilationEfficiency();
+
+    bool setSizingOption(const std::string& sizingOption);
 
     //@}
     /** @name Other */

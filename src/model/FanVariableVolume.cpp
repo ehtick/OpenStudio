@@ -20,11 +20,17 @@
 #include "ZoneHVACUnitHeater_Impl.hpp"
 #include "ZoneHVACUnitVentilator.hpp"
 #include "ZoneHVACUnitVentilator_Impl.hpp"
+#include "ZoneHVACEvaporativeCoolerUnit.hpp"
+#include "ZoneHVACEvaporativeCoolerUnit_Impl.hpp"
 #include "AirLoopHVACUnitarySystem.hpp"
 #include "AirLoopHVACUnitarySystem_Impl.hpp"
 #include "SetpointManagerMixedAir.hpp"
 #include "AirflowNetworkFan.hpp"
 #include "AirflowNetworkFan_Impl.hpp"
+#include "FanSystemModel.hpp"
+#include "CurveQuartic.hpp"
+#include "CurveQuartic_Impl.hpp"
+
 #include <utilities/idd/IddFactory.hxx>
 
 #include <utilities/idd/OS_Fan_VariableVolume_FieldEnums.hxx>
@@ -488,6 +494,19 @@ namespace model {
         }
       }
 
+      // ZoneHVACEvaporativeCoolerUnit
+      std::vector<ZoneHVACEvaporativeCoolerUnit> zoneHVACEvaporativeCoolerUnit;
+
+      zoneHVACEvaporativeCoolerUnit = this->model().getConcreteModelObjects<ZoneHVACEvaporativeCoolerUnit>();
+
+      for (const auto& elem : zoneHVACEvaporativeCoolerUnit) {
+        if (boost::optional<HVACComponent> fan = elem.supplyAirFan()) {
+          if (fan->handle() == this->handle()) {
+            return elem;
+          }
+        }
+      }
+
       return boost::none;
     }
 
@@ -526,6 +545,54 @@ namespace model {
       if (val) {
         setMaximumFlowRate(val.get());
       }
+    }
+
+    FanSystemModel FanVariableVolume_Impl::convertToFanSystemModel() const {
+      FanSystemModel fan(this->model());
+      fan.setName(this->nameString() + " FanSystemModel");
+      auto availSch = this->availabilitySchedule();
+      fan.setAvailabilitySchedule(availSch);
+      fan.setFanTotalEfficiency(this->fanTotalEfficiency());
+      fan.setDesignPressureRise(this->pressureRise());
+      if (this->isMaximumFlowRateAutosized()) {
+        fan.autosizeDesignMaximumAirFlowRate();
+      } else if (boost::optional<double> value = this->maximumFlowRate()) {
+        fan.setDesignMaximumAirFlowRate(value.get());
+      }
+      fan.setMotorEfficiency(this->motorEfficiency());
+      fan.setMotorInAirStreamFraction(this->motorInAirstreamFraction());
+      fan.setSpeedControlMethod("Continuous");
+      fan.setElectricPowerMinimumFlowRateFraction(0.0);
+      fan.autosizeDesignElectricPowerConsumption();
+      fan.setDesignPowerSizingMethod("TotalEfficiencyAndPressure");
+      fan.setEndUseSubcategory(this->endUseSubcategory());
+
+      CurveQuartic curve(this->model());
+      curve.setName(fan.nameString() + " Curve");
+      if (boost::optional<double> value = this->fanPowerCoefficient1()) {
+        curve.setCoefficient1Constant(value.get());
+      }
+      if (boost::optional<double> value = this->fanPowerCoefficient2()) {
+        curve.setCoefficient2x(value.get());
+      }
+      if (boost::optional<double> value = this->fanPowerCoefficient3()) {
+        curve.setCoefficient3xPOW2(value.get());
+      }
+      if (boost::optional<double> value = this->fanPowerCoefficient4()) {
+        curve.setCoefficient4xPOW3(value.get());
+      }
+      if (boost::optional<double> value = this->fanPowerCoefficient5()) {
+        curve.setCoefficient5xPOW4(value.get());
+      }
+      curve.setMinimumValueofx(0.0);
+      curve.setMaximumValueofx(1.0);
+      curve.setMinimumCurveOutput(0.0);
+      curve.setMaximumCurveOutput(5.0);
+      curve.setInputUnitTypeforX("Dimensionless");
+      curve.setOutputUnitType("Dimensionless");
+      fan.setElectricPowerFunctionofFlowFractionCurve(curve);
+
+      return fan;
     }
 
     std::vector<EMSActuatorNames> FanVariableVolume_Impl::emsActuatorNames() const {
@@ -846,13 +913,17 @@ namespace model {
     return getImpl<detail::FanVariableVolume_Impl>()->airflowNetworkFan();
   }
 
-  /// @cond
-  FanVariableVolume::FanVariableVolume(std::shared_ptr<detail::FanVariableVolume_Impl> impl) : StraightComponent(std::move(impl)) {}
-  /// @endcond
-
   boost::optional<double> FanVariableVolume::autosizedMaximumFlowRate() const {
     return getImpl<detail::FanVariableVolume_Impl>()->autosizedMaximumFlowRate();
   }
+
+  FanSystemModel FanVariableVolume::convertToFanSystemModel() const {
+    return getImpl<detail::FanVariableVolume_Impl>()->convertToFanSystemModel();
+  }
+
+  /// @cond
+  FanVariableVolume::FanVariableVolume(std::shared_ptr<detail::FanVariableVolume_Impl> impl) : StraightComponent(std::move(impl)) {}
+  /// @endcond
 
 }  // namespace model
 }  // namespace openstudio

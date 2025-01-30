@@ -67,8 +67,7 @@ namespace model {
     }
 
     double MasslessOpaqueMaterial_Impl::thermalConductivity() const {
-      LOG_AND_THROW("Unable to convert thermal resistance to thermal conductivity for "
-                    << "MasslessOpaqueMaterial " << briefDescription() << ".");
+      LOG_AND_THROW("Unable to convert thermal resistance to thermal conductivity for " << "MasslessOpaqueMaterial " << briefDescription() << ".");
       return 0.0;
     }
 
@@ -77,8 +76,7 @@ namespace model {
     }
 
     double MasslessOpaqueMaterial_Impl::thermalResistivity() const {
-      LOG_AND_THROW("Unable to convert thermal resistance to thermal resistivity for "
-                    << "MasslessOpaqueMaterial " << briefDescription() << ".");
+      LOG_AND_THROW("Unable to convert thermal resistance to thermal resistivity for " << "MasslessOpaqueMaterial " << briefDescription() << ".");
       return 0.0;
     }
 
@@ -405,21 +403,25 @@ namespace model {
     return getImpl<detail::MasslessOpaqueMaterial_Impl>()->roughness();
   }
 
+  // cppcheck-suppress [duplInheritedMember] for documentation purposes
   boost::optional<double> MasslessOpaqueMaterial::thermalAbsorptance() const {
     OptionalDouble result = getImpl<detail::MasslessOpaqueMaterial_Impl>()->thermalAbsorptance();
     return result;
   }
 
+  // cppcheck-suppress [duplInheritedMember] for documentation purposes
   boost::optional<double> MasslessOpaqueMaterial::solarAbsorptance() const {
     OptionalDouble result = getImpl<detail::MasslessOpaqueMaterial_Impl>()->solarAbsorptance();
     return result;
   }
 
+  // cppcheck-suppress [duplInheritedMember] for documentation purposes
   boost::optional<double> MasslessOpaqueMaterial::visibleAbsorptance() const {
     OptionalDouble result = getImpl<detail::MasslessOpaqueMaterial_Impl>()->visibleAbsorptance();
     return result;
   }
 
+  // cppcheck-suppress [duplInheritedMember] for documentation purposes
   double MasslessOpaqueMaterial::thermalResistance() const {
     return getImpl<detail::MasslessOpaqueMaterial_Impl>()->thermalResistance();
   }
@@ -440,10 +442,12 @@ namespace model {
     return getImpl<detail::MasslessOpaqueMaterial_Impl>()->setRoughness(roughness);
   }
 
+  // cppcheck-suppress [duplInheritedMember] for documentation purposes
   bool MasslessOpaqueMaterial::setThermalResistance(double thermalResistance) {
     return getImpl<detail::MasslessOpaqueMaterial_Impl>()->setThermalResistance(thermalResistance);
   }
 
+  // cppcheck-suppress [duplInheritedMember] for documentation purposes
   bool MasslessOpaqueMaterial::setThermalAbsorptance(double thermalAbsorptance) {
     return getImpl<detail::MasslessOpaqueMaterial_Impl>()->setThermalAbsorptance(thermalAbsorptance);
   }

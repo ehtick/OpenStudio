@@ -25,7 +25,7 @@ namespace model {
     /** @name Constructors and Destructors */
     //@{
 
-    virtual ~OutputControlFiles() = default;
+    virtual ~OutputControlFiles() override = default;
     // Default the copy and move operators because the virtual dtor is explicit
     OutputControlFiles(const OutputControlFiles& other) = default;
     OutputControlFiles(OutputControlFiles&& other) = default;
@@ -54,6 +54,8 @@ namespace model {
     bool outputJSON() const;
 
     bool outputAUDIT() const;
+
+    bool outputSpaceSizing() const;
 
     bool outputZoneSizing() const;
 
@@ -118,6 +120,8 @@ namespace model {
     bool setOutputJSON(bool outputJSON);
 
     bool setOutputAUDIT(bool outputAUDIT);
+
+    bool setOutputSpaceSizing(bool outputSpaceSizing);
 
     bool setOutputZoneSizing(bool outputZoneSizing);
 

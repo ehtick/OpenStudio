@@ -73,7 +73,7 @@ openstudio::path XMLValidator::schematronToXslt(const openstudio::path& schemaPa
 
   // This replicates what happens when you do:
   // from lxml.isoschematron import Schematron;
-  // s = Schematron(file='schematron.sct', store_xslt=True)
+  // s = Schematron(file='schematron.sch', store_xslt=True)
   // with open('schematron.xslt', 'w') as f:
   //     f.write(str(s._validator_xslt))
 
@@ -170,7 +170,7 @@ XMLValidator::XMLValidator(const openstudio::path& schemaPath) : m_schemaPath(op
   } else if (schemaPath.extension() == ".xslt") {
     m_validatorType = XMLValidatorType::XSLTSchematron;
     logAndStore(Trace, "Treating schema as a XLST StyleSheet that derives from a Schematron.");
-  } else if ((schemaPath.extension() == ".xml") || (schemaPath.extension() == ".sct")) {
+  } else if ((schemaPath.extension() == ".xml") || (schemaPath.extension() == ".sch")) {
     m_validatorType = XMLValidatorType::Schematron;
     logAndStore(Trace, "Treating schema as a Schematron, converting to an XSLT StyleSheet.");
     // Let's use a temporary directory for this, so we avoid having two instances trying to write to the same file and we avoid issues where the
@@ -262,7 +262,7 @@ bool XMLValidator::validate(const openstudio::path& xmlPath) {
     LOG_AND_THROW(logMessage);
   }
 
-  if (xmlPath.extension() == ".xml") {
+  if (xmlPath.extension() == ".xml" || xmlPath.extension() == ".sch" || xmlPath.extension() == ".xsd") {
     auto t_xmlPath = openstudio::filesystem::system_complete(xmlPath);
     m_xmlPath = t_xmlPath;
   } else {
@@ -329,15 +329,15 @@ bool XMLValidator::xsdValidate() const {
   m_logMessages.reserve(m_logMessages.size() + schemaValidErrorCollector.logMessages.size() + schemaParserErrorCollector.logMessages.size()
                         + parseFileErrorCollector.logMessages.size());
 
-  for (auto& logMessage : schemaValidErrorCollector.logMessages) {
+  for (const auto& logMessage : schemaValidErrorCollector.logMessages) {
     logAndStore(logMessage.logLevel(), "xsdValidate.schemaValidError: " + logMessage.logMessage());
   }
 
-  for (auto& logMessage : schemaParserErrorCollector.logMessages) {
+  for (const auto& logMessage : schemaParserErrorCollector.logMessages) {
     logAndStore(logMessage.logLevel(), "xsdValidate.schemaParserError: " + logMessage.logMessage());
   }
 
-  for (auto& logMessage : parseFileErrorCollector.logMessages) {
+  for (const auto& logMessage : parseFileErrorCollector.logMessages) {
     logAndStore(logMessage.logLevel(), "xsdValidate.parseFileError: " + logMessage.logMessage());
   }
 
@@ -370,6 +370,7 @@ std::vector<std::string> processXSLTApplyResult(xmlDoc* res) {
   }
 
   /* Evaluate xpath expression */
+  // cppcheck-suppress cstyleCast
   xpathObj = xmlXPathEvalExpression((const xmlChar*)xpathExpr, xpathCtx);
   if (xpathObj == nullptr) {
     xmlXPathFreeContext(xpathCtx);
@@ -471,14 +472,18 @@ std::vector<LogMessage> XMLValidator::logMessages() const {
   return m_logMessages;
 }
 
-XMLValidator XMLValidator::gbxmlValidator() {
+XMLValidator XMLValidator::gbxmlValidator(const VersionString& schemaVersion) {
   const auto tmpDir = openstudio::filesystem::create_temporary_directory("xmlvalidation");
   if (tmpDir.empty()) {
     LOG_AND_THROW("Failed to create a temporary directory for extracting the embedded path");
   }
+  if (schemaVersion != VersionString(7, 3)) {
+    LOG_AND_THROW("Unexpected gbXML Schema Version: accepted = [7.03]");
+  }
   const bool quiet = true;
-  ::openstudio::embedded_files::extractFile(":/xml/resources/GreenBuildingXML_Ver7.03.xsd", openstudio::toString(tmpDir), quiet);
-  auto validator = XMLValidator(tmpDir / "GreenBuildingXML_Ver7.03.xsd");
+  std::string schemaName = fmt::format("GreenBuildingXML_Ver{}.{:02}.xsd", schemaVersion.major(), schemaVersion.minor());
+  ::openstudio::embedded_files::extractFile(fmt::format(":/xml/resources/{}", schemaName), openstudio::toString(tmpDir), quiet);
+  auto validator = XMLValidator(tmpDir / schemaName);
   validator.m_tempDir = tmpDir;
   return validator;
 }

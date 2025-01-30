@@ -1064,7 +1064,6 @@ namespace model {
 
     bool AirConditionerVariableRefrigerantFlow_Impl::setHeatPumpWasteHeatRecovery(bool heatPumpWasteHeatRecovery) {
       return setBooleanFieldValue(OS_AirConditioner_VariableRefrigerantFlowFields::HeatPumpWasteHeatRecovery, heatPumpWasteHeatRecovery);
-      ;
     }
 
     bool AirConditionerVariableRefrigerantFlow_Impl::setEquivalentPipingLengthusedforPipingCorrectionFactorinCoolingMode(
@@ -1734,11 +1733,10 @@ namespace model {
       // If this doesn't agree with the current conditions, we warn...
       if ((openstudio::istringEqual("AirCooled", condenserType) || openstudio::istringEqual("EvaporativelyCooled", condenserType))
           && (this->plantLoop())) {
-        LOG(Warn, "Setting the Condenser Type to '" << condenserType << "', you should disconnect from its PlantLoop. "
-                                                    << "Occurred for " << briefDescription());
+        LOG(Warn, "Setting the Condenser Type to '" << condenserType << "', you should disconnect from its PlantLoop. " << "Occurred for "
+                                                    << briefDescription());
       } else if (istringEqual("WaterCooled", condenserType) && !(this->plantLoop())) {
-        LOG(Warn, "Setting the Condenser Type to 'WaterCooled', you should connect it to a PlantLoop. "
-                    << "Occurred for " << briefDescription());
+        LOG(Warn, "Setting the Condenser Type to 'WaterCooled', you should connect it to a PlantLoop. " << "Occurred for " << briefDescription());
       }
 
       // ... but we still do it...

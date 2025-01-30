@@ -27,7 +27,7 @@ namespace model {
 
       EvaporativeCoolerDirectResearchSpecial_Impl(const EvaporativeCoolerDirectResearchSpecial_Impl& other, Model_Impl* model, bool keepHandle);
 
-      virtual ~EvaporativeCoolerDirectResearchSpecial_Impl() = default;
+      virtual ~EvaporativeCoolerDirectResearchSpecial_Impl() override = default;
 
       //@}
       /** @name Virtual Methods */
@@ -131,6 +131,8 @@ namespace model {
       boost::optional<ModelObject> availabilityScheduleAsModelObject() const;
 
       bool setAvailabilityScheduleAsModelObject(const boost::optional<ModelObject>& modelObject);
+
+      virtual boost::optional<ZoneHVACComponent> containingZoneHVACComponent() const override;
     };
 
   }  // namespace detail

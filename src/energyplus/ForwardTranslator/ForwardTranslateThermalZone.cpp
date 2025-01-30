@@ -683,7 +683,7 @@ namespace energyplus {
       };
 
       auto illuminanceMapObject = translateIlluminanceMap(illuminanceMap.get());
-      illuminanceMapObject.setString(Output_IlluminanceMapFields::ZoneName, tzName);
+      illuminanceMapObject.setString(Output_IlluminanceMapFields::ZoneorSpaceName, tzName);
     }
 
     // TODO: this is definitely shared between both paths
@@ -1024,8 +1024,8 @@ namespace energyplus {
             zvRate += rate;
             zvRateForVolume += rateForVolume;
           }  // if zoneEquipment.empty()
-        }    // if dsoa
-      }      // loop on spaces
+        }  // if dsoa
+      }  // loop on spaces
 
       if (!atLeastOneDSOAWasWritten && sizingZoneIdf) {
         // Controller:MechnicalVentilation: Design Specification Outdoor Air Object Name <x>
@@ -1111,7 +1111,7 @@ namespace energyplus {
           zoneVentilation.setDouble(ZoneVentilation_DesignFlowRateFields::AirChangesperHour, 3600.0 * zvRateForVolume / totVolume);
         }
       }  // zone.equipment().emptpy()
-    }    // End Sizing:Zone / ZV block
+    }  // End Sizing:Zone / ZV block
 
     return idfObject;
   }

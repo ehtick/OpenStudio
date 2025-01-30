@@ -30,7 +30,7 @@ namespace model {
 
       WaterHeaterHeatPump_Impl(const WaterHeaterHeatPump_Impl& other, Model_Impl* model, bool keepHandle);
 
-      virtual ~WaterHeaterHeatPump_Impl() = default;
+      virtual ~WaterHeaterHeatPump_Impl() override = default;
 
       //@}
       /** @name Virtual Methods */
@@ -94,6 +94,8 @@ namespace model {
       std::string parasiticHeatRejectionLocation() const;
 
       Schedule inletAirMixerSchedule() const;
+
+      std::string tankElementControlLogic() const;
 
       std::string controlSensorLocationInStratifiedTank() const;
 
@@ -164,6 +166,8 @@ namespace model {
       bool setParasiticHeatRejectionLocation(const std::string& parasiticHeatRejectionLocation);
 
       bool setInletAirMixerSchedule(Schedule& schedule);
+
+      bool setTankElementControlLogic(const std::string& tankElementControlLogic);
 
       bool setControlSensorLocationInStratifiedTank(const std::string& controlSensorLocationInStratifiedTank);
 

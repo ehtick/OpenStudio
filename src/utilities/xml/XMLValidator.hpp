@@ -43,7 +43,7 @@ class UTILITIES_API XMLValidator
    *
    * The schemaPath extension is used to determine the type of validation to perform:
    * - `*.xsd` => XSD
-   * - `*.xml` or `*.sct` => Schematron (convert to XSLT then validate)
+   * - `*.xml` or `*.sch` => Schematron (convert to XSLT then validate)
    * - `*.xslt` => Schematron that is already transformed to an XSLT stylesheet */
   explicit XMLValidator(const openstudio::path& schemaPath);
   ~XMLValidator();
@@ -52,7 +52,7 @@ class UTILITIES_API XMLValidator
   XMLValidator& operator=(const XMLValidator& other) = default;
   XMLValidator& operator=(XMLValidator&& other) noexcept = default;
 
-  static XMLValidator gbxmlValidator();
+  static XMLValidator gbxmlValidator(const VersionString& schemaVersion = VersionString(7, 3));
 
   static XMLValidator bclXMLValidator(openstudio::BCLXMLType bclXMLType = openstudio::BCLXMLType::MeasureXML,
                                       const VersionString& schemaVersion = VersionString(3, 1));

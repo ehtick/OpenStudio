@@ -38,13 +38,12 @@ inline std::string applicationFilePath() {
   return {};
 }
 
-int main(int argc, char* argv[]) {
+int main(int argc, const char* argv[]) {
 
 #ifdef __APPLE__
   if (argc > 1u) {
     openstudio::filesystem::path appDir = openstudio::filesystem::path(applicationFilePath()).parent_path();
     openstudio::filesystem::path cliPath = appDir / "openstudio";
-    openstudio::filesystem::path appPath = appDir.parent_path() / "OpenStudioApp.app";
 
     if (std::string(argv[1]) == "Install") {
       try {
@@ -79,14 +78,12 @@ int main(int argc, char* argv[]) {
       openstudio::filesystem::path mongoPath = appDir.parent_path() / "pat\\mongo\\bin\\mongod.exe";
 
       std::ostringstream oss;
-      oss << "netsh advfirewall firewall add rule name=\"Allow OpenStudio CLI\" dir=in program="
-          << "\"" << cliPath.string() << "\" "
+      oss << "netsh advfirewall firewall add rule name=\"Allow OpenStudio CLI\" dir=in program=" << "\"" << cliPath.string() << "\" "
           << "action=allow";
       std::system(oss.str().c_str());
 
       std::ostringstream oss2;
-      oss2 << "netsh advfirewall firewall add rule name=\"Allow OpenStudio Mongo\" dir=in program="
-           << "\"" << mongoPath.string() << "\" "
+      oss2 << "netsh advfirewall firewall add rule name=\"Allow OpenStudio Mongo\" dir=in program=" << "\"" << mongoPath.string() << "\" "
            << "action=allow";
       std::system(oss2.str().c_str());
 

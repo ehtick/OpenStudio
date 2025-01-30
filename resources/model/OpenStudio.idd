@@ -1,4 +1,4 @@
-!IDD_Version 3.8.0
+!IDD_Version 3.9.1
 ! *****************************************************************************
 ! This file is the Input Data Dictionary (IDD) for OpenStudio Model.
 !
@@ -40,7 +40,7 @@ OS:Version,
        \required-field
   A2, \field Version Identifier
        \type alpha
-       \default 3.8.0
+       \default 3.9.1
   A3; \field Prerelease Identifier
        \type alpha
 
@@ -959,7 +959,7 @@ OS:Site,
        \minimum -300
        \maximum< 8900
        \default 0.0
-  A3; \field Terrain
+  A3,  \field Terrain
        \note Country=FlatOpenCountry | Suburbs=CountryTownsSuburbs | City=CityCenter | Ocean=body of water (5km) | Urban=Urban-Industrial-Forest
        \type choice
        \default Suburbs
@@ -968,6 +968,11 @@ OS:Site,
        \key City
        \key Ocean
        \key Urban
+  A4;  \field Keep Site Location Information
+       \type choice
+       \key Yes
+       \key No
+       \default No
 
 OS:Site:GroundTemperature:BuildingSurface,
        \memo These temperatures are specifically for those surfaces that have the outside environment
@@ -5133,7 +5138,6 @@ OS:Building,
        \type alpha
        \required-field
        \reference BuildingNames
-       \reference SpaceAndSpaceGroupNames
   A3, \field Building Sector Type
        \deprecated
        \type choice
@@ -9226,7 +9230,8 @@ OS:Refrigeration:SecondarySystem,
   N3,   \field Evaporator Flow Rate for Secondary Fluid
         \type real
         \minimum 0.0
-        \units M3/s
+        \units m3/s
+        \ip-units gal/min
         \note For "FluidAlwaysLiquid", at least one of the two, Evaporator Capacity OR
         \note    Evaporator Flow Rate for Secondary Fluid, is required.
         \note For "FluidPhaseChange" loops, this input is not used. (see PhaseChange Circulating
@@ -9261,7 +9266,8 @@ OS:Refrigeration:SecondarySystem,
   N8,   \field Total Pump Flow Rate
         \type real
         \minimum 0.0
-        \units M3/s
+        \units m3/s
+        \ip-units gal/min
         \note For "FluidAlwaysLiquid",if not input, Evaporator Flow Rate for Secondary Fluid
         \note       will be used.
         \note For "FluidPhaseChange", if not input, this will be calculated using the
@@ -11565,6 +11571,7 @@ OS:AirLoopHVAC:UnitaryHeatPump:AirToAir,
        \type object-list
        \required-field
        \object-list HeatingCoilsGasElec
+       \object-list HeatingCoilsWater
   N4, \field Maximum Supply Air Temperature from Supplemental Heater
        \type real
        \required-field
@@ -12472,10 +12479,40 @@ OS:AirTerminal:SingleDuct:SeriesPIU:Reheat,
        \minimum 0.0
        \ip-units gal/min
        \required-field
-  N6;  \field Convergence Tolerance
+  N6,  \field Convergence Tolerance
        \type real
        \minimum> 0.0
        \required-field
+  A11, \field Fan Control Type
+       \note If VariableSpeed, then the fan object type must be Fan:SystemModel
+       \type choice
+       \key VariableSpeed
+       \key ConstantSpeed
+       \required-field
+  N7,  \field Minimum Fan Turn Down Ratio
+       \type real
+       \units dimensionless
+       \note flow through terminal at minimum fan speed is this ratio multiplied by Maximum Air Flow Rate
+       \minimum 0.0
+       \maximum 1.0
+       \required-field
+  A12, \field Heating Control Type
+       \type choice
+       \key Staged
+       \key Modulated
+       \required-field
+  N8,  \field Design Heating Discharge Air Temperature
+       \type real
+       \units C
+       \required-field
+       \note Only used if Heating Control Type is Modulated
+       \note Used to control second stage heating, typically zone heat setpoint plus 20F
+  N9;  \field High Limit Heating Discharge Air Temperature
+       \type real
+       \units C
+       \required-field
+       \note Only used if Heating Control Type is Modulated
+       \note Used to determine end of third stage heating
 
 OS:AirTerminal:SingleDuct:ParallelPIU:Reheat,
        \min-fields 1
@@ -12529,7 +12566,7 @@ OS:AirTerminal:SingleDuct:ParallelPIU:Reheat,
        \type object-list
        \object-list FansCV
        \object-list FansSystemModel
-  A11, \field Reheat Coil Name
+  A10, \field Reheat Coil Name
        \type object-list
        \object-list HeatingCoilName
   N5, \field Maximum Hot Water or Steam Flow Rate
@@ -12545,10 +12582,40 @@ OS:AirTerminal:SingleDuct:ParallelPIU:Reheat,
        \ip-units gal/min
        \minimum 0
        \default 0.0
-  N7; \field Convergence Tolerance
+  N7, \field Convergence Tolerance
        \type real
        \minimum> 0
        \default 0.001
+  A11, \field Fan Control Type
+       \note If VariableSpeed, then the fan object type must be Fan:SystemModel
+       \type choice
+       \key VariableSpeed
+       \key ConstantSpeed
+       \required-field
+  N8,  \field Minimum Fan Turn Down Ratio
+       \type real
+       \units dimensionless
+       \note flow through terminal at minimum fan speed is this ratio multiplied by Maximum Air Flow Rate
+       \minimum 0.0
+       \maximum 1.0
+       \required-field
+  A12, \field Heating Control Type
+       \type choice
+       \key Staged
+       \key Modulated
+       \required-field
+  N9,  \field Design Heating Discharge Air Temperature
+       \type real
+       \units C
+       \required-field
+       \note Only used if Heating Control Type is Modulated
+       \note Used to control second stage heating, typically zone heat setpoint plus 20F
+  N10; \field High Limit Heating Discharge Air Temperature
+       \type real
+       \units C
+       \required-field
+       \note Only used if Heating Control Type is Modulated
+       \note Used to determine end of third stage heating
 
 OS:AirTerminal:SingleDuct:ConstantVolume:FourPipeInduction,
        \memo Central air system terminal unit, single duct, variable volume, induction unit with
@@ -13984,7 +14051,7 @@ OS:HeatPump:WaterToWater:EquationFit:Cooling,
 
 OS:HeatPump:PlantLoop:EIR:Heating,
        \memo An EIR formulated water to water heat pump model, heating operation
-       \min-fields 29
+       \min-fields 37
    A1, \field Handle
        \type handle
        \required-field
@@ -14014,7 +14081,15 @@ OS:HeatPump:PlantLoop:EIR:Heating,
        \type object-list
        \required-field
        \object-list ConnectionNames
-   A8, \field Companion Heat Pump Name
+   A8, \field Heat Recovery Inlet Node Name
+       \type object-list
+       \object-list ConnectionNames
+       \note Not available with water source condenser type
+   A9, \field Heat Recovery Outlet Node Name
+       \type object-list
+       \object-list ConnectionNames
+       \note Not available with water source condenser type
+   A10,\field Companion Heat Pump Name
        \note This field allows the user to specify a companion cooling
        \note object for this heating object. The companion is used in
        \note sizing the heat pump as well as to allow checks for unexpected
@@ -14037,23 +14112,31 @@ OS:HeatPump:PlantLoop:EIR:Heating,
        \ip-units gal/min
        \autosizable
        \required-field
-   N3, \field Reference Capacity
+   N3, \field Heat Recovery Reference Flow Rate
+       \type real
+       \minimum> 0.0
+       \units m3/s
+       \ip-units gal/min
+       \autosizable
+       \required-field
+       \note Not available with water source condenser type
+   N4, \field Reference Capacity
        \type real
        \minimum> 0.0
        \units W
        \autosizable
        \required-field
-   N4, \field Reference Coefficient of Performance
+   N5, \field Reference Coefficient of Performance
        \type real
        \minimum> 0.0
        \required-field
        \units W/W
-   N5, \field Sizing Factor
+   N6, \field Sizing Factor
        \note Multiplies the autosized load side reference flow rate which is then used to autosize the capacity
        \type real
        \minimum> 0.0
        \required-field
-   A9, \field Capacity Modifier Function of Temperature Curve Name
+   A11,\field Capacity Modifier Function of Temperature Curve Name
        \note Heating capacity modifier as a function of CW supply temp and entering condenser temp
        \required-field
        \type object-list
@@ -14061,7 +14144,7 @@ OS:HeatPump:PlantLoop:EIR:Heating,
        \note curve = a + b*CWS + c*CWS**2 + d*ECT + e*ECT**2 + f*CWS*ECT
        \note CWS = supply (leaving) hot water temperature(C)
        \note ECT = entering condenser fluid temperature(C)
-   A10,\field Electric Input to Output Ratio Modifier Function of Temperature Curve Name
+   A12,\field Electric Input to Output Ratio Modifier Function of Temperature Curve Name
        \note Electric Input Ratio (EIR) modifier as a function of temperature
        \note EIR = 1/COP
        \required-field
@@ -14070,7 +14153,7 @@ OS:HeatPump:PlantLoop:EIR:Heating,
        \note curve = a + b*CWS + c*CWS**2 + d*ECT + e*ECT**2 + f*CWS*ECT
        \note CWS = supply (leaving) hot water temperature(C)
        \note ECT = entering condenser fluid temperature(C)
-   A11,\field Electric Input to Output Ratio Modifier Function of Part Load Ratio Curve Name
+   A13,\field Electric Input to Output Ratio Modifier Function of Part Load Ratio Curve Name
        \note Electric Input Ratio (EIR) modifier as a function of Part Load Ratio (PLR)
        \note EIR = 1/COP
        \required-field
@@ -14078,25 +14161,25 @@ OS:HeatPump:PlantLoop:EIR:Heating,
        \object-list UnivariateFunctions
        \note quadratic curve = a + b*PLR + c*PLR**2 is typical, other univariate curves may be used
        \note PLR = part load ratio (hot load/steady state capacity)
-   N6, \field Heating To Cooling Capacity Sizing Ratio
+   N7, \field Heating To Cooling Capacity Sizing Ratio
        \note Multiplies the autosized heating capacity
        \type real
        \minimum 0.0
        \required-field
-   A12,\field Heat Pump Sizing Method
+   A14,\field Heat Pump Sizing Method
        \note Specifies sizing method when companion coil exists
        \type choice
        \key CoolingCapacity
        \key HeatingCapacity
        \key GreaterOfHeatingOrCooling
        \required-field
-   A13,\field Control Type
+   A15,\field Control Type
        \note Heat pump can be controlled on leaving water temperature set point or plant load
        \type choice
        \key Setpoint
        \key Load
        \required-field
-   A14,\field Flow Mode
+   A16,\field Flow Mode
        \note Select operating mode for fluid flow through the chiller. "ConstantFlow" is for
        \note constant pumping with flow controlled by chiller to operate at full design
        \note flow rate. "VariableSpeedPumping" is for variable pumping with flow proportional
@@ -14105,56 +14188,56 @@ OS:HeatPump:PlantLoop:EIR:Heating,
        \key ConstantFlow
        \key VariableSpeedPumping
        \required-field
-   N7, \field Minimum Part Load Ratio
+   N8, \field Minimum Part Load Ratio
        \note Below this operating limit compressor cycling will occur
        \type real
        \minimum 0.0
        \required-field
-   N8, \field Minimum Source Inlet Temperature
+   N9, \field Minimum Source Inlet Temperature
        \type real
        \units C
        \required-field
        \note Enter the minimum inlet outdoor air dry-bulb temperature
        \note for air-cooled units or minimum inlet water temperature for water-cooled units.
        \note The unit is disabled below this temperature.
-   N9, \field Maximum Source Inlet Temperature
+   N10,\field Maximum Source Inlet Temperature
        \type real
        \units C
        \required-field
        \note Enter the maximum inlet outdoor air dry-bulb temperature
        \note for air-cooled units or maximum inlet water temperature for water-cooled units.
        \note The unit is disabled above this temperature.
-   A15,\field Minimum Supply Water Temperature Curve Name
+   A17,\field Minimum Supply Water Temperature Curve Name
        \type object-list
        \object-list UnivariateFunctions
        \note quadratic curve = a + b*OAT is typical, other univariate curves may be used
        \note OAT = Outdoor Dry-Bulb Temperature
-   A16,\field Maximum Supply Water Temperature Curve Name
+   A18,\field Maximum Supply Water Temperature Curve Name
        \type object-list
        \object-list UnivariateFunctions
        \note quadratic curve = a + b*OAT is typical, other univariate curves may be used
        \note OAT = Outdoor Dry-Bulb Temperature
-   A17,\field Dry Outdoor Correction Factor Curve Name
+   A19,\field Dry Outdoor Correction Factor Curve Name
        \type object-list
        \object-list UnivariateFunctions
-   N10,\field Maximum Outdoor Dry Bulb Temperature For Defrost Operation
+   N11,\field Maximum Outdoor Dry Bulb Temperature For Defrost Operation
        \type real
        \required-field
        \note defrost operation will not be active above this outdoor temperature
-   A18,\field Heat Pump Defrost Control
+   A20,\field Heat Pump Defrost Control
        \type choice
        \key None
        \key Timed
        \key OnDemand
        \key TimedEmpirical
        \required-field
-   N11,\field Heat Pump Defrost Time Period Fraction
+   N12,\field Heat Pump Defrost Time Period Fraction
        \type real
        \minimum 0.0
        \required-field
        \note Nominal fraction of time in defrost mode
        \note only applicable if Timed or TimedEmpirical heat pump defrost control is specified
-   A19,\field Defrost Energy Input Ratio Function of Temperature Curve Name
+   A21,\field Defrost Energy Input Ratio Function of Temperature Curve Name
        \type object-list
        \object-list BivariateFunctions
        \note univariate curve = a + b*OAT is typical, other univariate curves may be used
@@ -14162,14 +14245,14 @@ OS:HeatPump:PlantLoop:EIR:Heating,
        \note OAT = outdoor air dry-bulb temperature (C)
        \note WB = wet-bulb temperature (C) of air entering the indoor coil
        \note only required if Timed or OnDemand defrost strategy is specified
-   A20,\field Timed Empirical Defrost Frequency Curve Name
+   A22,\field Timed Empirical Defrost Frequency Curve Name
        \type object-list
        \object-list UnivariateFunctions
        \note univariate curve = a + b*OAT is typical, other univariate curves may be used
        \note OAT = outdoor air dry-bulb temperature (C)
        \note Timed Empirical Defrost Frequency fraction in hours = curve output
        \note only applicable if TimedEmpirical defrost control is specified
-   A21,\field Timed Empirical Defrost Heat Load Penalty Curve Name
+   A23,\field Timed Empirical Defrost Heat Load Penalty Curve Name
        \type object-list
        \object-list UnivariateFunctions
        \object-list BivariateFunctions
@@ -14179,7 +14262,7 @@ OS:HeatPump:PlantLoop:EIR:Heating,
        \note WB = wet-bulb temperature (C) of air entering the indoor coil
        \note Timed Empirical Defrost Heat Load Penalty in watts = hot load * curve output
        \note only applicable if TimedEmpirical defrost control is specified
-   A22;\field Timed Empirical Defrost Heat Input Energy Fraction Curve Name
+   A24,\field Timed Empirical Defrost Heat Input Energy Fraction Curve Name
        \type object-list
        \object-list UnivariateFunctions
        \object-list BivariateFunctions
@@ -14189,10 +14272,33 @@ OS:HeatPump:PlantLoop:EIR:Heating,
        \note WB = wet-bulb temperature (C) of air entering the indoor coil
        \note Timed Empirical Defrost Heat Input Energy in watts = rated hot load * curve output
        \note only applicable if TimedEmpirical defrost control is specified
+   N13,\field Minimum Heat Recovery Outlet Temperature
+       \type real
+       \units C
+       \required-field
+       \note Enter the minimum heat recovery leaving water temperature limit
+       \note The chilled water temperature is not allowed to drop below this value
+       \note Not available with water source condenser type
+   A25,\field Heat Recovery Capacity Modifier Function of Temperature Curve Name
+       \note Heating capacity modifier as a function of HW supply temp and entering condenser fluid temp
+       \type object-list
+       \object-list BivariateFunctions
+       \note curve = a + b*HWS + c*HWS**2 + d*ECT + e*ECT**2 + f*HWS*ECT
+       \note HWS = supply (leaving) hot water temperature(C)
+       \note ECT = entering condenser fluid temperature(C)
+   A26;\field Heat Recovery Electric Input to Output Ratio Modifier Function of Temperature Curve Name
+       \note Electric Input Ratio (EIR) modifier as a function of temperature
+       \note EIR = 1/COP
+       \type object-list
+       \object-list BivariateFunctions
+       \note curve = a + b*HWS + c*HWS**2 + d*ECT + e*ECT**2 + f*HWS*ECT
+       \note HWS = supply (leaving) hot water temperature(C)
+       \note ECT = entering condenser fluid temperature(C)
+       \note If this field is blank, the AWHP curve without heat recovery will be used
 
 OS:HeatPump:PlantLoop:EIR:Cooling,
        \memo An EIR formulated water to water heat pump model, cooling operation.
-       \min-fields 21
+       \min-fields 31
    A1, \field Handle
        \type handle
        \required-field
@@ -14222,7 +14328,15 @@ OS:HeatPump:PlantLoop:EIR:Cooling,
        \type object-list
        \required-field
        \object-list ConnectionNames
-   A8, \field Companion Heat Pump Name
+   A8, \field Heat Recovery Inlet Node Name
+       \type object-list
+       \object-list ConnectionNames
+       \note Not available with water source condenser type
+   A9, \field Heat Recovery Outlet Node Name
+       \type object-list
+       \object-list ConnectionNames
+       \note Not available with water source condenser type
+   A10,\field Companion Heat Pump Name
        \note This field allows the user to specify a companion heating
        \note object for this cooling object. The companion is used in
        \note sizing the heat pump as well as to allow checks for unexpected
@@ -14245,23 +14359,31 @@ OS:HeatPump:PlantLoop:EIR:Cooling,
        \ip-units gal/min
        \autosizable
        \required-field
-   N3, \field Reference Capacity
+   N3, \field Heat Recovery Reference Flow Rate
+       \type real
+       \minimum> 0.0
+       \units m3/s
+       \ip-units gal/min
+       \autosizable
+       \required-field
+       \note Not available with water source condenser type
+   N4, \field Reference Capacity
        \type real
        \minimum> 0.0
        \units W
        \autosizable
        \required-field
-   N4, \field Reference Coefficient of Performance
+   N5, \field Reference Coefficient of Performance
        \type real
        \minimum> 0.0
        \required-field
        \units W/W
-   N5, \field Sizing Factor
+   N6, \field Sizing Factor
        \note Multiplies the autosized load side reference flow rate which is then used to autosize the capacity
        \type real
        \minimum> 0.0
        \required-field
-   A9, \field Capacity Modifier Function of Temperature Curve Name
+   A11,\field Capacity Modifier Function of Temperature Curve Name
        \note Cooling capacity modifier as a function of CW supply temp and entering condenser temp
        \required-field
        \type object-list
@@ -14269,7 +14391,7 @@ OS:HeatPump:PlantLoop:EIR:Cooling,
        \note curve = a + b*CWS + c*CWS**2 + d*ECT + e*ECT**2 + f*CWS*ECT
        \note CWS = supply (leaving) chilled water temperature(C)
        \note ECT = entering condenser fluid temperature(C)
-   A10,\field Electric Input to Output Ratio Modifier Function of Temperature Curve Name
+   A12,\field Electric Input to Output Ratio Modifier Function of Temperature Curve Name
        \note Electric Input Ratio (EIR) modifier as a function of temperature
        \note EIR = 1/COP
        \required-field
@@ -14278,7 +14400,7 @@ OS:HeatPump:PlantLoop:EIR:Cooling,
        \note curve = a + b*CWS + c*CWS**2 + d*ECT + e*ECT**2 + f*CWS*ECT
        \note CWS = supply (leaving) chilled water temperature(C)
        \note ECT = entering condenser fluid temperature(C)
-   A11,\field Electric Input to Output Ratio Modifier Function of Part Load Ratio Curve Name
+   A13,\field Electric Input to Output Ratio Modifier Function of Part Load Ratio Curve Name
        \note Electric Input Ratio (EIR) modifier as a function of Part Load Ratio (PLR)
        \note EIR = 1/COP
        \required-field
@@ -14286,13 +14408,13 @@ OS:HeatPump:PlantLoop:EIR:Cooling,
        \object-list UnivariateFunctions
        \note quadratic curve = a + b*PLR + c*PLR**2 is typical, other univariate curves may be used
        \note PLR = part load ratio (cooling load/steady state capacity)
-   A12,\field Control Type
+   A14,\field Control Type
        \note Heat pump can be controlled on leaving water temperature set point or plant load
        \type choice
        \key Setpoint
        \key Load
        \required-field
-   A13,\field Flow Mode
+   A15,\field Flow Mode
        \note Select operating mode for fluid flow through the chiller. "ConstantFlow" is for
        \note constant pumping with flow controlled by chiller to operate at full design
        \note flow rate. "VariableSpeedPumping" is for variable pumping with flow proportional
@@ -14301,35 +14423,72 @@ OS:HeatPump:PlantLoop:EIR:Cooling,
        \key ConstantFlow
        \key VariableSpeedPumping
        \required-field
-   N6, \field Minimum Part Load Ratio
+   N7, \field Minimum Part Load Ratio
        \note Below this operating limit compressor cycling will occur
        \type real
        \minimum 0.0
        \required-field
-   N7, \field Minimum Source Inlet Temperature
+   N8, \field Minimum Source Inlet Temperature
        \type real
        \units C
        \required-field
        \note Enter the minimum inlet outdoor air dry-bulb temperature
        \note for air-cooled units or minimum inlet water temperature for water-cooled units.
        \note The unit is disabled below this temperature.
-   N8, \field Maximum Source Inlet Temperature
+   N9, \field Maximum Source Inlet Temperature
        \type real
        \units C
        \required-field
        \note Enter the maximum inlet outdoor air dry-bulb temperature
        \note for air-cooled units or maximum inlet water temperature for water-cooled units.
        \note The unit is disabled above this temperature.
-   N9, \field Minimum Supply Water Temperature Curve Name
+   N10,\field Minimum Supply Water Temperature Curve Name
        \type object-list
        \object-list UnivariateFunctions
        \note quadratic curve = a + b*OAT is typical, other univariate curves may be used
        \note OAT = Outdoor Dry-Bulb Temperature
-   N10;\field Maximum Supply Water Temperature Curve Name
+   N11,\field Maximum Supply Water Temperature Curve Name
        \type object-list
        \object-list UnivariateFunctions
        \note quadratic curve = a + b*OAT is typical, other univariate curves may be used
        \note OAT = Outdoor Dry-Bulb Temperature
+   N12,\field Maximum Heat Recovery Outlet Temperature
+       \type real
+       \units C
+       \required-field
+       \note Enter the maximum heat recovery leaving water temperature limit
+       \note The hot water temperature is not allowed to exceed this value
+       \note Not available with water source condenser type
+   A16,\field Heat Recovery Capacity Modifier Function of Temperature Curve Name
+       \note Cooling capacity modifier as a function of CW supply temp and condenser entering fluid temp
+       \type object-list
+       \object-list BivariateFunctions
+       \note curve = a + b*CWS + c*CWS**2 + d*ECT + e*ECT**2 + f*CWS*ECT
+       \note CWS = supply (leaving) chilled water temperature(C)
+       \note ECT = entering condenser fluid temperature(C)
+       \note If this field is blank, the AWHP curve without heat recovery will be used
+   A17,\field Heat Recovery Electric Input to Output Ratio Modifier Function of Temperature Curve Name
+       \note Electric Input Ratio (EIR) modifier as a function of temperature
+       \note EIR = 1/COP
+       \type object-list
+       \object-list BivariateFunctions
+       \note curve = a + b*CWS + c*CWS**2 + d*ECT + e*ECT**2 + f*CWS*ECT
+       \note CWS = supply (leaving) chilled water temperature(C)
+       \note ECT = entering condenser fluid temperature(C)
+       \note If this field is blank, the AWHP curve without heat recovery will be used
+   A18,\field Thermosiphon Capacity Fraction Curve Name
+       \type object-list
+       \object-list UnivariateFunctions
+       \note quadratic curve = a + b * (Tevap, out - Tcond, in) is typical, other univariate curves may be used
+       \note Tevap, out = evaporator outlet temperature
+       \note Tcond, in = condenser inlet temperature
+       \note If this field is blank the thermosiphon model is disabled.
+   N13;\field Thermosiphon Minimum Temperature Difference
+       \type real
+       \minimum 0.0
+       \required-field
+       \note Thermosiphon model is disabled below this minimum limit and
+       \note when the load is greater than calculated using the prevoius field.
 
 OS:HeatPump:AirToWater:FuelFired:Heating,
        \memo The object defines a fuel-fired absorption heat pump based on equation-fit models.
@@ -14396,6 +14555,7 @@ OS:HeatPump:AirToWater:FuelFired:Heating,
        \autosizable
        \minimum> 0
        \units m3/s
+       \ip-units gal/min
        \required-field
        \note Design Flow Rate in m3/s (autosizable)
    N4, \field Design Supply Temperature
@@ -14581,6 +14741,7 @@ OS:HeatPump:AirToWater:FuelFired:Cooling,
        \autosizable
        \minimum> 0
        \units m3/s
+       \ip-units gal/min
        \required-field
        \note Design Flow Rate in m3/s (autosizable)
    N4, \field Design Supply Temperature
@@ -14885,11 +15046,64 @@ OS:Chiller:Electric:EIR,
        \note If this field is not used, the bundles are modeled as being in parallel
        \type object-list
        \object-list Node
-  A17; \field End-Use Subcategory
+  A17, \field End-Use Subcategory
        \note Any text may be used here to categorize the end-uses in the ABUPS End Uses by Subcategory table.
        \type alpha
        \retaincase
        \default General
+  A18, \field Condenser Flow Control
+       \note Select the chiller condenser flow request mode. With "ConstantFlow" a chiller will always request
+       \note its maximum condenser flow rate. With "ModulatedChillerPLR" the condenser flow request corresponds
+       \note to the chiller part load ratio multiplied by the chiller maximum condenser flow rate.  With
+       \note "ModulatedLoopPLR" the chiller will request a flow rate that is function of the chilled water
+       \note loop's part load ratio, see the "Condenser Loop Flow Rate Fraction Function of Loop Part Load Ratio
+       \note Curve Name" input. With "ModulatedDeltaTemperature" the chiller will request the flow rate required to meet
+       \note the condenser loop load based on the condenser leaving fluid temperature and a reference temperature,
+       \note see the "Temperature Difference Across Condenser"  and "Temperature Difference Across Condenser Schedule
+       \note Name" input.
+       \note Use "ConstantFlow" when modeling a constant flow condenser plant loop, choose one of the other inputs
+       \note when modeling a variable flow condenser plant loop.
+       \type choice
+       \key ConstantFlow
+       \key ModulatedChillerPLR
+       \key ModulatedLoopPLR
+       \key ModulatedDeltaTemperature
+       \required-field
+  A19, \field Condenser Loop Flow Rate Fraction Function of Loop Part Load Ratio Curve Name
+       \note Condenser loop flow rate fraction as a function of loop part load ratio
+       \note CWFR = C * PLR + D
+       \note Where:
+       \note CWFR is the condenser water flow fraction (actual/design)
+       \note C and D are coefficients, see "Optimizing Design & Control Of Chilled Water Plants, Part 5", S. Taylor, ASHRAE Journal June 2012
+       \note PLR is the chilled water plant loop part load ratio (actual/design)
+       \type object-list
+       \object-list UnivariateFunctions
+  A20, \field Temperature Difference Across Condenser Schedule Name
+       \note A schedule that defines the temperature difference across the condenser. This input is used to
+       \note calculate the condenser flow. This input is only used when "Condenser Flow Control" is set to
+       \note "ModulatedDeltaTemperature".
+       \type object-list
+       \object-list ScheduleNames
+  N19, \field Condenser Minimum Flow Fraction
+       \note This input corresponds to the minimum flow fraction to be simulated. The minimum condenser flow
+       \note corresponds to this fraction multiplied by the maximum condenser flow rate. This input is only used
+       \note when the "Condenser Flow Control" input is set to "ModulatedChillerPLR", "ModulatedLoopPLR" or
+       \note "ModulatedDeltaTemperature".
+       \type real
+       \required-field
+  A21, \field Thermosiphon Capacity Fraction Curve Name
+       \type object-list
+       \object-list UnivariateFunctions
+       \note quadratic curve = a + b * (Tevap, out - Tcond, in) is typical, other univariate curves may be used
+       \note Tevap, out = evaporator outlet temperature
+       \note Tcond, in = condenser inlet temperature
+       \note If this field is blank the thermosiphon model is disabled.
+  N20; \field Thermosiphon Minimum Temperature Difference
+       \type real
+       \minimum 0.0
+       \required-field
+       \note Thermosiphon model is disabled below this minimum limit and
+       \note when the load is greater than calculated using the prevoius field.
 
 OS:Chiller:Electric:ReformulatedEIR,
        \min-fields 23
@@ -15092,12 +15306,65 @@ OS:Chiller:Electric:ReformulatedEIR,
        \note Using this triggers a model more suited to series bundle and chillers with higher temperature heat recovery
        \note If this field is not used, the bundles are modeled as being in parallel
        \type object-list
-       \object-list ConnectionNames
-  A16; \field End-Use Subcategory
+       \object-list Node
+  A16, \field End-Use Subcategory
        \note Any text may be used here to categorize the end-uses in the ABUPS End Uses by Subcategory table.
        \type alpha
        \retaincase
        \default General
+  A17, \field Condenser Flow Control
+       \note Select the chiller condenser flow request mode. With "ConstantFlow" a chiller will always request
+       \note its maximum condenser flow rate. With "ModulatedChillerPLR" the condenser flow request corresponds
+       \note to the chiller part load ratio multiplied by the chiller maximum condenser flow rate.  With
+       \note "ModulatedLoopPLR" the chiller will request a flow rate that is function of the chilled water
+       \note loop's part load ratio, see the "Condenser Loop Flow Rate Fraction Function of Loop Part Load Ratio
+       \note Curve Name" input. With "ModulatedDeltaTemperature" the chiller will request the flow rate required to meet
+       \note the condenser loop load based on the condenser leaving fluid temperature and a reference temperature,
+       \note see the "Temperature Difference Across Condenser"  and "Temperature Difference Across Condenser Schedule
+       \note Name" input.
+       \note Use "ConstantFlow" when modeling a constant flow condenser plant loop, choose one of the other inputs
+       \note when modeling a variable flow condenser plant loop.
+       \type choice
+       \key ConstantFlow
+       \key ModulatedChillerPLR
+       \key ModulatedLoopPLR
+       \key ModulatedDeltaTemperature
+       \required-field
+  A18, \field Condenser Loop Flow Rate Fraction Function of Loop Part Load Ratio Curve Name
+       \note Condenser loop flow rate fraction as a function of loop part load ratio
+       \note CWFR = C * PLR + D
+       \note Where:
+       \note CWFR is the condenser water flow fraction (actual/design)
+       \note C and D are coefficients, see "Optimizing Design & Control Of Chilled Water Plants, Part 5", S. Taylor, ASHRAE Journal June 2012
+       \note PLR is the chilled water plant loop part load ratio (actual/design)
+       \type object-list
+       \object-list UnivariateFunctions
+  A19, \field Temperature Difference Across Condenser Schedule Name
+       \note A schedule that defines the temperature difference across the condenser. This input is used to
+       \note calculate the condenser flow. This input is only used when "Condenser Flow Control" is set to
+       \note "ModulatedDeltaTemperature".
+       \type object-list
+       \object-list ScheduleNames
+  N16, \field Condenser Minimum Flow Fraction
+       \note This input corresponds to the minimum flow fraction to be simulated. The minimum condenser flow
+       \note corresponds to this fraction multiplied by the maximum condenser flow rate. This input is only used
+       \note when the "Condenser Flow Control" input is set to "ModulatedChillerPLR", "ModulatedLoopPLR" or
+       \note "ModulatedDeltaTemperature".
+       \type real
+       \required-field
+  A20, \field Thermosiphon Capacity Fraction Curve Name
+       \type object-list
+       \object-list UnivariateFunctions
+       \note quadratic curve = a + b * (Tevap, out - Tcond, in) is typical, other univariate curves may be used
+       \note Tevap, out = evaporator outlet temperature
+       \note Tcond, in = condenser inlet temperature
+       \note If this field is blank the thermosiphon model is disabled.
+  N17; \field Thermosiphon Minimum Temperature Difference
+       \type real
+       \minimum 0.0
+       \required-field
+       \note Thermosiphon model is disabled below this minimum limit and
+       \note when the load is greater than calculated using the prevoius field.
 
 OS:Chiller:Electric:ASHRAE205,
    \min-fields 12
@@ -16850,8 +17117,8 @@ OS:DistrictHeating:Steam,
 
 OS:GroundHeatExchanger:Vertical,
         \extensible:2
-        \min-fields 22
-        \max-fields 220
+        \min-fields 23
+        \max-fields 221
         \memo Variable short time step vertical ground heat exchanger model based on
         \memo Yavuztruk, C., J.D.Spitler. 1999. A Short Time Step response Factor Model for
         \memo Vertical Ground Loop Heat Exchangers
@@ -16881,67 +17148,72 @@ OS:GroundHeatExchanger:Vertical,
   N2,   \field Number of Bore Holes
         \type integer
         \minimum> 0.0
-  N3,   \field Bore Hole Length
+  N3,   \field Bore Hole Top Depth
+        \required-field
+        \type real
+        \units m
+        \minimum 0.0
+  N4,   \field Bore Hole Length
         \type real
         \units m
         \minimum> 0.0
-  N4,   \field Bore Hole Radius
+  N5,   \field Bore Hole Radius
         \type real
         \units m
         \minimum> 0.0
-  N5,   \field Ground Thermal Conductivity
+  N6,   \field Ground Thermal Conductivity
         \type real
         \units W/m-K
         \ip-units Btu-in/hr-ft2-R
         \minimum> 0.0
-  N6,   \field Ground Thermal Heat Capacity
+  N7,   \field Ground Thermal Heat Capacity
         \type real
         \units J/m3-K
         \minimum> 0.0
-  N7,   \field Ground Temperature
+  N8,   \field Ground Temperature
         \type real
         \units C
         \minimum> 0.0
-  N8,   \field Grout Thermal Conductivity
+  N9,   \field Grout Thermal Conductivity
         \type real
         \units W/m-K
         \ip-units Btu-in/hr-ft2-R
         \minimum> 0.0
-  N9,   \field Pipe Thermal Conductivity
+  N10,  \field Pipe Thermal Conductivity
         \type real
         \units W/m-K
         \ip-units Btu-in/hr-ft2-R
         \minimum> 0.0
-  N10,  \field Pipe Out Diameter
+  N11,  \field Pipe Out Diameter
         \type real
         \units m
         \minimum> 0.0
         \ip-units in
-  N11,  \field U-Tube Distance
+  N12,  \field U-Tube Distance
         \type real
         \units m
         \minimum> 0.0
-  N12,  \field Pipe Thickness
+  N13,  \field Pipe Thickness
         \type real
         \units m
         \minimum> 0.0
         \ip-units in
-  N13,  \field Maximum Length of Simulation
+  N14,  \field Maximum Length of Simulation
         \type real
         \minimum> 0.0
   A5,   \field Undisturbed Ground Temperature Model
         \required-field
         \type object-list
         \object-list UndisturbedGroundTempModels
-  N14,  \field G-Function Reference Ratio
+  N15,  \field G-Function Reference Ratio
         \type real
         \units dimensionless
         \minimum> 0.0
         \default 0.0005
-  N15,  \field G-Function Ln(T/Ts) Value
+  N16,  \field G-Function Ln(T/Ts) Value
         \type real
         \begin-extensible
-  N16;  \field G-Function G Value
+  N17;  \field G-Function G Value
         \type real
 
 OS:GroundHeatExchanger:HorizontalTrench,
@@ -16966,6 +17238,7 @@ OS:GroundHeatExchanger:HorizontalTrench,
         \required-field
         \type real
         \units m3/s
+        \ip-units gal/min
         \minimum> 0
    N2 , \field Trench Length in Pipe Axial Direction
         \note This is the total pipe axial length of the heat exchanger
@@ -22427,7 +22700,7 @@ OS:Controller:OutdoorAir,
        \note This field is only used when the field High Humidity Control = Yes.
        \type real
        \minimum> 0
-       \default 1.0
+       \required-field
   A19, \field Control High Indoor Humidity Based on Outdoor Humidity Ratio
        \note If No is selected, the outdoor air flow rate is modified any time indoor relative
        \note humidity is above the humidistat setpoint. If Yes is selected, the outdoor air
@@ -22435,7 +22708,7 @@ OS:Controller:OutdoorAir,
        \note setpoint and the outdoor humidity ratio is less than the indoor humidity ratio.
        \note This field is only used when the field High Humidity Control = Yes.
        \type choice
-       \default Yes
+       \required-field
        \key Yes
        \key No
   A20, \field Heat Recovery Bypass Control Type
@@ -24234,6 +24507,7 @@ OS:EvaporativeCooler:Indirect:ResearchSpecial,
        \type alpha
        \required-field
        \reference ConnectionObject
+       \reference EvapCoolerNames
   A3 , \field Availability Schedule Name
        \note Availability schedule name for this system. Schedule value > 0 means the system is available.
        \note If this field is blank, the system is always available.
@@ -24384,6 +24658,7 @@ OS:EvaporativeCooler:Direct:ResearchSpecial,
        \type alpha
        \required-field
        \reference ConnectionObject
+       \reference EvapCoolerNames
   A3, \field Availability Schedule Name
        \type object-list
        \required-field
@@ -28538,13 +28813,19 @@ OS:Sizing:Zone,
        \default 0.0
        \minimum 0.0
        \units dimensionless
-  N26; \field Design Minimum Zone Ventilation Efficiency
+  N26, \field Design Minimum Zone Ventilation Efficiency
        \note this field is from the DesignSpecification:ZoneAirDistribution
        \type real
        \default 0.0
        \minimum 0.0
        \maximum 1.0
        \units dimensionless
+  A13; \field Sizing Option
+       \note NonCoincident is available only if Do Space Heat Balance for Sizing=Yes in ZoneAirHeatBalanceAlgorithm.
+       \type choice
+       \key Coincident
+       \key NonCoincident
+       \required-field
 
 OS:Splitter,
        \extensible:1
@@ -30216,11 +30497,11 @@ OS:ZoneHVAC:TerminalUnit:VariableRefrigerantFlow,
         \note and terminal unit has no fan.
   A8 ,  \field Supply Air Fan
         \type object-list
-        \object-list FansCVandOnOffandVAV
+        \object-list FansCVandOnOff
         \object-list FansSystemModel
         \note Supply Air Fan Object Type must be Fan:SystemModel, Fan:OnOff, or Fan:ConstantVolume
         \note if AirConditioner:VariableRefrigerantFlow is used to model VRF outdoor unit
-        \note Supply Air Fan Object Type must be Fan:SystemModel or Fan:VariableVolume if
+        \note Supply Air Fan Object Type must be Fan:SystemModel if
         \note AirConditioner:VariableRefrigerantFlow:FluidTemperatureControl or
         \note AirConditioner:VariableRefrigerantFlow:FluidTemperatureControl:HR
         \note is used to model VRF outdoor unit
@@ -30913,13 +31194,100 @@ OS:ZoneHVAC:CoolingPanel:RadiantConvective:Water,
        \minimum 0
        \maximum 1
 
+OS:ZoneHVAC:EvaporativeCoolerUnit,
+       \memo Zone evaporative cooler. Forced-convection cooling-only unit with supply fan,
+       \memo 100% outdoor air supply. Optional relief exhaust node
+       \min-fields 17
+  A1,  \field Handle
+       \type handle
+       \required-field
+  A2,  \field Name
+       \required-field
+       \type alpha
+       \reference ConnectionObject
+  A3,  \field Availability Schedule Name
+       \note Availability schedule name for this system. Schedule value > 0 means the system is available.
+       \note If this field is blank, the system is always available.
+       \required-field
+       \type object-list
+       \object-list ScheduleNames
+  A4,  \field Availability Manager List Name
+       \note Enter the name of an AvailabilityManagerAssignmentList object.
+       \type object-list
+       \object-list SystemAvailabilityManagerLists
+  A5,  \field Outdoor Air Inlet Node Name
+       \required-field
+       \type object-list
+       \object-list ConnectionNames
+       \note this is an outdoor air node
+  A6,  \field Cooler Outlet Node Name
+       \required-field
+       \type object-list
+       \object-list ConnectionNames
+       \note this is a zone inlet node
+  A7,  \field Zone Relief Air Node Name
+       \type object-list
+       \object-list ConnectionNames
+       \note this is a zone exhaust node, optional if flow is being balanced elsewhere
+  A8,  \field Supply Air Fan Name
+       \required-field
+       \type object-list
+       \object-list Fans
+  N1,  \field Design Supply Air Flow Rate
+       \required-field
+       \units m3/s
+       \minimum> 0
+       \autosizable
+  A9,  \field Fan Placement
+       \required-field
+       \type choice
+       \key BlowThrough
+       \key DrawThrough
+  A10, \field Cooler Unit Control Method
+       \required-field
+       \type choice
+       \key ZoneTemperatureDeadbandOnOffCycling
+       \key ZoneCoolingLoadOnOffCycling
+       \key ZoneCoolingLoadVariableSpeedFan
+  N2,  \field Throttling Range Temperature Difference
+       \note used for ZoneTemperatureDeadbandOnOffCycling hysteresis range for thermostatic control
+       \type real
+       \units deltaC
+       \required-field
+       \minimum> 0.0
+  N3,  \field Cooling Load Control Threshold Heat Transfer Rate
+       \type real
+       \units W
+       \required-field
+       \note Sign convention is that positive values indicate a cooling load
+       \minimum> 0.0
+  A11, \field First Evaporative Cooler
+       \required-field
+       \type object-list
+       \object-list EvapCoolerNames
+  A12, \field Second Evaporative Cooler
+       \note optional, used for direct/indirect configurations
+       \type object-list
+       \object-list EvapCoolerNames
+  A13, \field Design Specification ZoneHVAC Sizing
+       \note Enter the name of a DesignSpecificationZoneHVACSizing object.
+       \type object-list
+       \object-list DesignSpecificationZoneHVACSizingName
+  N4;  \field Shut Off Relative Humidity
+       \note Zone relative humidity above which the evap cooler is shut off.
+       \required-field
+       \type real
+       \minimum 0.00
+       \maximum 100.00
+       \units percent
+
 OS:ZoneMixing,
        \memo ZoneMixing is a simple air exchange from one zone or space to another. Note that this statement
        \memo only affects the energy balance of the "receiving" zone or space and will not produce
        \memo any effect on the "source" zone. Mixing statements can be complementary and include
        \memo multiple zones, but the balancing of flows between zones is left to the user's
        \memo discretion.
- \min-fields 18
+       \min-fields 18
   A1,  \field Handle
        \type handle
        \required-field
@@ -31061,6 +31429,7 @@ OS:WaterHeater:Mixed,
        \note Not yet implemented
        \type real
        \units m3/s
+       \ip-units gal/min
        \minimum 0.0
        \default 0.0
   N7 , \field Heater Ignition Delay
@@ -31433,7 +31802,16 @@ OS:WaterHeater:HeatPump,
        \note A schedule value of 1 denotes inlet air is drawn only from outdoors.
        \note Schedule values between 0 and 1 denote a mixture of zone and outdoor air
        \note proportional to the schedule value.
-  A19; \field Control Sensor Location In Stratified Tank
+  A19, \field Tank Element Control Logic
+       \type choice
+       \key MutuallyExclusive
+       \key Simultaneous
+       \required-field
+       \note MutuallyExclusive means that once the tank heating element is active the
+       \note heat pump is shut down until setpoint is reached.
+       \note Simultaneous (default) means that both the tank heating element and
+       \note heat pump are used at the same time recover the tank temperature.
+  A20; \field Control Sensor Location In Stratified Tank
        \note Used to indicate height of control sensor if Tank Object Type is WaterHeater:Stratified
        \type choice
        \key Heater1
@@ -33639,6 +34017,7 @@ OS:SolarCollectorPerformance:FlatPlate,
        \type real
        \minimum> 0
        \units m3/s
+       \ip-units gal/min
   A4 , \field Test Correlation Type
        \required-field
        \type choice
@@ -33697,6 +34076,7 @@ OS:SolarCollector:FlatPlate:Water,
        \type real
        \minimum> 0
        \units m3/s
+       \ip-units gal/min
 
 OS:SolarCollectorPerformance:IntegralCollectorStorage,
        \memo Thermal and optical performance parameters for a single glazed solar collector with
@@ -33879,6 +34259,7 @@ OS:SolarCollector:IntegralCollectorStorage,
        \type real
        \minimum> 0
        \units m3/s
+       \ip-units gal/min
 
 OS:SolarCollectorPerformance:PhotovoltaicThermal:Simple,
        \memo Thermal performance parameters for a hybrid photovoltaic-thermal (PVT) solar collector.
@@ -37237,112 +37618,117 @@ OS:OutputControl:Files,
        \key Yes
        \key No
        \required-field
-  A10, \field Output Zone Sizing
+  A10, \field Output Space Sizing
        \type choice
        \key Yes
        \key No
        \required-field
-  A11, \field Output System Sizing
+  A11, \field Output Zone Sizing
        \type choice
        \key Yes
        \key No
        \required-field
-  A12, \field Output DXF
+  A12, \field Output System Sizing
        \type choice
        \key Yes
        \key No
        \required-field
-  A13, \field Output BND
+  A13, \field Output DXF
        \type choice
        \key Yes
        \key No
        \required-field
-  A14, \field Output RDD
+  A14, \field Output BND
        \type choice
        \key Yes
        \key No
        \required-field
-  A15, \field Output MDD
+  A15, \field Output RDD
        \type choice
        \key Yes
        \key No
        \required-field
-  A16, \field Output MTD
+  A16, \field Output MDD
        \type choice
        \key Yes
        \key No
        \required-field
-  A17, \field Output SHD
+  A17, \field Output MTD
        \type choice
        \key Yes
        \key No
        \required-field
-  A18, \field Output DFS
+  A18, \field Output SHD
        \type choice
        \key Yes
        \key No
        \required-field
-  A19, \field Output GLHE
+  A19, \field Output DFS
        \type choice
        \key Yes
        \key No
        \required-field
-  A20, \field Output DelightIn
+  A20, \field Output GLHE
        \type choice
        \key Yes
        \key No
        \required-field
-  A21, \field Output DelightELdmp
+  A21, \field Output DelightIn
        \type choice
        \key Yes
        \key No
        \required-field
-  A22, \field Output DelightDFdmp
+  A22, \field Output DelightELdmp
        \type choice
        \key Yes
        \key No
        \required-field
-  A23, \field Output EDD
+  A23, \field Output DelightDFdmp
        \type choice
        \key Yes
        \key No
        \required-field
-  A24, \field Output DBG
+  A24, \field Output EDD
        \type choice
        \key Yes
        \key No
        \required-field
-  A25, \field Output PerfLog
+  A25, \field Output DBG
        \type choice
        \key Yes
        \key No
        \required-field
-  A26, \field Output SLN
+  A26, \field Output PerfLog
        \type choice
        \key Yes
        \key No
        \required-field
-  A27, \field Output SCI
+  A27, \field Output SLN
        \type choice
        \key Yes
        \key No
        \required-field
-  A28, \field Output WRL
+  A28, \field Output SCI
        \type choice
        \key Yes
        \key No
        \required-field
-  A29, \field Output Screen
+  A29, \field Output WRL
        \type choice
        \key Yes
        \key No
        \required-field
-  A30, \field Output ExtShd
+  A30, \field Output Screen
        \type choice
        \key Yes
        \key No
        \required-field
-  A31; \field Output Tarcog
+  A31, \field Output ExtShd
+       \type choice
+       \key Yes
+       \key No
+       \required-field
+  A32; \field Output Tarcog
        \note Not Implemented Yet
        \type choice
        \key Yes
@@ -38386,6 +38772,53 @@ OS:EnergyManagementSystem:ConstructionIndexVariable,
        \required-field
 
 \group Python Plugin System
+
+OS:PythonPlugin:SearchPaths,
+       \memo Add directories to the search path for Python plugin modules
+       \memo The directory containing the EnergyPlus executable file is
+       \memo automatically added so that the Python interpreter can find the
+       \memo packaged up pyenergyplus Python package.
+       \memo By default, the current working directory and input file directory
+       \memo are also added to the search path. However, this object allows
+       \memo modifying this behavior. With this object, searching these directories
+       \memo can be disabled, and users can add supplemental search paths
+       \memo that point to libraries of plugin scripts.
+       \unique-object
+       \min-fields 3
+       \extensible:1
+  A1,  \field Handle
+       \type handle
+       \required-field
+  A2,  \field Add Current Working Directory to Search Path
+       \note Adding the current working directory allows Python to find
+       \note plugin scripts in the current directory.
+       \note required-field disabled as it has a default
+       \type choice
+       \key Yes
+       \key No
+       \required-field
+  A3,  \field Add Input File Directory to Search Path
+       \note Enabling this will allow Python to find plugin scripts in the
+       \note same directory as the running input file, even if that is not
+       \note the current working directory.
+       \note required-field disabled as it has a default
+       \type choice
+       \key Yes
+       \key No
+       \required-field
+  A4,  \field Add epin Environment Variable to Search Path
+       \note The "epin" environment variable is set by some EnergyPlus interfaces
+       \note in order to let EnergyPlus find external files in special locations.
+       \note If this is enabled, and that variable is set, the value of the variable
+       \note will be added to the Python search path.
+       \type choice
+       \key Yes
+       \key No
+       \required-field
+  A5;  \field Search Path 1
+       \type alpha
+       \begin-extensible
+       \retaincase
 
 OS:PythonPlugin:Instance,
        \memo A single plugin to be executed during the simulation, which can contain multiple calling points

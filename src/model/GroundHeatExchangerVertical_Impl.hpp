@@ -27,7 +27,7 @@ namespace model {
 
       GroundHeatExchangerVertical_Impl(const GroundHeatExchangerVertical_Impl& other, Model_Impl* model, bool keepHandle);
 
-      virtual ~GroundHeatExchangerVertical_Impl() = default;
+      virtual ~GroundHeatExchangerVertical_Impl() override = default;
 
       //@}
       /** @name Virtual Methods */
@@ -55,6 +55,8 @@ namespace model {
       //@{
 
       boost::optional<int> numberofBoreHoles() const;
+
+      double boreHoleTopDepth() const;
 
       boost::optional<double> boreHoleLength() const;
 
@@ -93,6 +95,8 @@ namespace model {
       bool setNumberofBoreHoles(boost::optional<int> numberofBoreHoles);
 
       void resetNumberofBoreHoles();
+
+      bool setBoreHoleTopDepth(double boreHoleTopDepth);
 
       bool setBoreHoleLength(boost::optional<double> boreHoleLength);
 

@@ -6,7 +6,6 @@
 #include "SqlFile_Impl.hpp"
 #include "SqlFileTimeSeriesQuery.hpp"
 #include "PreparedStatement.hpp"
-#include "OpenStudio.hxx"
 
 #include "../time/Calendar.hpp"
 #include "../filetypes/EpwFile.hpp"
@@ -14,6 +13,8 @@
 #include "../core/Assert.hpp"
 #include "../core/ASCIIStrings.hpp"
 #include "../core/StringHelpers.hpp"
+
+#include <OpenStudio.hxx>
 
 #include <sqlite3.h>
 
@@ -70,7 +71,8 @@ namespace detail {
       initschema = true;
     }
 
-    sqlite3_open_v2(fileName.c_str(), &m_db, SQLITE_OPEN_READWRITE | SQLITE_OPEN_CREATE | SQLITE_OPEN_EXCLUSIVE, nullptr);
+    int code = sqlite3_open_v2(fileName.c_str(), &m_db, SQLITE_OPEN_READWRITE | SQLITE_OPEN_CREATE | SQLITE_OPEN_EXCLUSIVE, nullptr);
+    m_connectionOpen = (code == 0);
 
     if (initschema) {
       execAndThrowOnError(
@@ -595,11 +597,9 @@ namespace detail {
                                + boost::lexical_cast<std::string>(t_z) + ")";
 
     std::stringstream mapInsert;
-    mapInsert << "insert into daylightmaps (MapNumber, MapName, Environment, Zone, ReferencePt1, ReferencePt2, Z) values (" << mapIndex << ", "
-              << "'" << t_name << "', "
-              << "'" << t_environmentName << "', " << *zoneIndex << ", "
-              << "'" << referencePt1 << "', "
-              << "'" << referencePt2 << "', " << t_z << ");";
+    mapInsert << "insert into daylightmaps (MapNumber, MapName, Environment, Zone, ReferencePt1, ReferencePt2, Z) values (" << mapIndex << ", " << "'"
+              << t_name << "', " << "'" << t_environmentName << "', " << *zoneIndex << ", " << "'" << referencePt1 << "', " << "'" << referencePt2
+              << "', " << t_z << ");";
 
     execAndThrowOnError(mapInsert.str());
 
@@ -682,14 +682,9 @@ namespace detail {
     std::stringstream insertReportDataDictionary;
     insertReportDataDictionary << "insert into reportdatadictionary (ReportDataDictionaryIndex, IsMeter, Type, IndexGroup, TimestepType, KeyValue, "
                                   "Name, ReportingFrequency, ScheduleName, Units) values ("
-                               << datadicindex << ", "
-                               << "'0',"
-                               << "'" << t_variableType << "', "
-                               << "'" << t_indexGroup << "', "
-                               << "'" << t_timestepType << "', "
-                               << "'" << t_keyValue << "', "
-                               << "'" << t_variableName << "', "
-                               << "'" << t_reportingFrequency.valueName() << "', ";
+                               << datadicindex << ", " << "'0'," << "'" << t_variableType << "', " << "'" << t_indexGroup << "', " << "'"
+                               << t_timestepType << "', " << "'" << t_keyValue << "', " << "'" << t_variableName << "', " << "'"
+                               << t_reportingFrequency.valueName() << "', ";
 
     if (t_scheduleName) {
       insertReportDataDictionary << "'" << *t_scheduleName << "', ";
@@ -3249,9 +3244,7 @@ namespace detail {
 
       if (!ts) {
         if (istringEqual("Annual", reportingFrequency) || istringEqual("Environment", reportingFrequency)) {
-          LOG(Debug, "Trying query: " << queryEnvPeriod << ", "
-                                      << "Run Period"
-                                      << ", " << timeSeriesName << ", " << upperKeyValue);
+          LOG(Debug, "Trying query: " << queryEnvPeriod << ", " << "Run Period" << ", " << timeSeriesName << ", " << upperKeyValue);
           ts = timeSeries(queryEnvPeriod, "Run Period", timeSeriesName, keyValue);
         }
       }

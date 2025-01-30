@@ -302,6 +302,7 @@ set(${target_name}_src
   ForwardTranslator/ForwardTranslatePythonPluginVariable.cpp
   ForwardTranslator/ForwardTranslatePythonPluginTrendVariable.cpp
   ForwardTranslator/ForwardTranslatePythonPluginOutputVariable.cpp
+  ForwardTranslator/ForwardTranslatePythonPluginSearchPaths.cpp
   ForwardTranslator/ForwardTranslateRefractionExtinctionGlazing.cpp
   ForwardTranslator/ForwardTranslateRefrigerationAirChiller.cpp
   ForwardTranslator/ForwardTranslateRefrigerationCase.cpp
@@ -443,6 +444,7 @@ set(${target_name}_src
   ForwardTranslator/ForwardTranslateZoneHVACEnergyRecoveryVentilator.cpp
   ForwardTranslator/ForwardTranslateZoneHVACEnergyRecoveryVentilatorController.cpp
   ForwardTranslator/ForwardTranslateZoneHVACEquipmentList.cpp
+  ForwardTranslator/ForwardTranslateZoneHVACEvaporativeCoolerUnit.cpp
   ForwardTranslator/ForwardTranslateZoneHVACFourPipeFanCoil.cpp
   ForwardTranslator/ForwardTranslateZoneHVACHighTemperatureRadiant.cpp
   ForwardTranslator/ForwardTranslateZoneHVACIdealLoadsAirSystem.cpp
@@ -665,6 +667,8 @@ set(${target_name}_test_src
   Test/AirTerminalDualDuctVAVOutdoorAir_GTest.cpp
   Test/AirTerminalSingleDuctConstantVolumeFourPipeBeam_GTest.cpp
   Test/AirTerminalSingleDuctInletSideMixer_GTest.cpp
+  Test/AirTerminalSingleDuctSeriesPIUReheat_GTest.cpp
+  Test/AirTerminalSingleDuctParallelPIUReheat_GTest.cpp
   Test/AirTerminalSingleDuctVAVNoReheat_GTest.cpp
   Test/AirTerminalSingleDuctVAVReheat_GTest.cpp
   Test/AirTerminalSingleDuctVAVHeatAndCoolNoReheat_GTest.cpp
@@ -687,6 +691,8 @@ set(${target_name}_test_src
   Test/BoilerHotWater_GTest.cpp
   Test/Building_GTest.cpp
   Test/ChillerElectricASHRAE205_GTest.cpp
+  Test/ChillerElectricEIR_GTest.cpp
+  Test/ChillerElectricReformulatedEIR_GTest.cpp
   Test/CentralHeatPumpSystem_GTest.cpp
   Test/CoilCoolingDX_GTest.cpp
   Test/CoilCoolingDXCurveFitPerformance_GTest.cpp
@@ -717,6 +723,7 @@ set(${target_name}_test_src
   Test/Construction_GTest.cpp
   Test/ConstructionWithInternalSource_GTest.cpp
   Test/ControllerOutdoorAir_GTest.cpp
+  Test/CoolingTowerSingleSpeed_GTest.cpp
   Test/CurveQuadLinear_GTest.cpp
   Test/CurveQuintLinear_GTest.cpp
   Test/DaylightingControl_GTest.cpp
@@ -787,6 +794,7 @@ set(${target_name}_test_src
   Test/PythonPluginVariable_GTest.cpp
   Test/PythonPluginOutputVariable_GTest.cpp
   Test/PythonPluginTrendVariable_GTest.cpp
+  Test/PythonPluginSearchPaths_GTest.cpp
   Test/RunPeriod_GTest.cpp
   Test/RunPeriodControlDaylightSavingTime_GTest.cpp
   Test/RunPeriodControlSpecialDays_GTest.cpp
@@ -799,6 +807,7 @@ set(${target_name}_test_src
   Test/ShadingSurface_GTest.cpp
   Test/ShadowCalculation_GTest.cpp
   Test/SimulationControl_GTest.cpp
+  Test/Site_GTest.cpp
   Test/SiteGroundTemperatureUndisturbedKusudaAchenbach_GTest.cpp
   Test/SiteGroundTemperatureUndisturbedXing_GTest.cpp
   Test/SizingSystem_GTest.cpp
@@ -824,6 +833,7 @@ set(${target_name}_test_src
   Test/ThermalStorageChilledWaterStratified_GTest.cpp
   Test/ThermalZone_GTest.cpp
   Test/ThermostatSetpointDualSetpoint_GTest.cpp
+  Test/UnitarySystemPerformanceMultispeed_GTest.cpp
   Test/WindowPropertyFrameAndDivider_GTest.cpp
   Test/WaterHeaterMixed_GTest.cpp
   Test/WaterHeaterSizing_GTest.cpp
@@ -831,6 +841,7 @@ set(${target_name}_test_src
   Test/WaterUseConnections_GTest.cpp
   Test/ZoneAirHeatBalanceAlgorithm_GTest.cpp
   Test/ZoneHVACBaseboardRadiantConvectiveWater_GTest.cpp
+  Test/ZoneHVACEvaporativeCoolerUnit_GTest.cpp
   Test/ZoneHVACLowTemperatureRadiantElectric_GTest.cpp
   Test/ZoneHVACLowTempRadiantConstFlow_GTest.cpp
   Test/ZoneHVACLowTempRadiantVarFlow_GTest.cpp

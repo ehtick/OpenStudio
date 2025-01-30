@@ -1216,8 +1216,8 @@ TEST_F(OSVersionFixture, update_3_0_1_to_3_1_0_WaterHeaterHeatPump) {
   EXPECT_EQ("Outdoors", wh.getString(17, false, true).get());
 
   // Last Field: Control Sensor Location In Stratified Tank
-  ASSERT_TRUE(wh.getString(25, false, true));
-  EXPECT_EQ("Heater2", wh.getString(25, false, true).get());
+  ASSERT_TRUE(wh.getString(26, false, true));
+  EXPECT_EQ("Heater2", wh.getString(26, false, true).get());
 }
 
 TEST_F(OSVersionFixture, update_3_0_1_to_3_1_0_ShadingControl_and_SubSurfaces) {
@@ -1721,9 +1721,9 @@ TEST_F(OSVersionFixture, update_3_2_1_to_3_3_0_GroundHeatExchangerVertical) {
   EXPECT_EQ(1.15, ghe.getDouble(4).get());
 
   // Field before deletion
-  EXPECT_EQ(13.385, ghe.getDouble(10).get());
+  EXPECT_EQ(13.385, ghe.getDouble(11).get());
   // Field right after deleted
-  EXPECT_EQ(0.71111, ghe.getDouble(11).get());
+  EXPECT_EQ(0.71111, ghe.getDouble(12).get());
 
   EXPECT_EQ(35, ghe.numExtensibleGroups());
 }
@@ -2515,19 +2515,20 @@ TEST_F(OSVersionFixture, update_3_6_1_to_3_7_0_GroundHeatExchangerVertical) {
   EXPECT_TRUE(ghx.isEmpty(3));                                            // Outlet Node Name
   EXPECT_EQ(0.0033, ghx.getDouble(4).get());                              // Design Flow Rate
   EXPECT_EQ(120, ghx.getInt(5).get());                                    // Number of Bore Holes
-  EXPECT_EQ(76.2, ghx.getDouble(6).get());                                // Bore Hole Length
-  EXPECT_EQ(0.063508, ghx.getDouble(7).get());                            // Bore Hole Radius
-  EXPECT_EQ(0.692626, ghx.getDouble(8).get());                            // Ground Thermal Conductivity
-  EXPECT_EQ(2347000, ghx.getDouble(9).get());                             // Ground Thermal Heat Capacity
-  EXPECT_EQ(13.375, ghx.getDouble(10).get());                             // Ground Temperature
-  EXPECT_EQ(0.692626, ghx.getDouble(11).get());                           // Grout Thermal Conductivity
-  EXPECT_EQ(0.391312, ghx.getDouble(12).get());                           // Pipe Thermal Conductivity
-  EXPECT_EQ(0.0266667, ghx.getDouble(13).get());                          // Pipe Out Diameter
-  EXPECT_EQ(0.0253977, ghx.getDouble(14).get());                          // U-Tube Distance
-  EXPECT_EQ(0.00241285, ghx.getDouble(15).get());                         // Pipe Thickness
-  EXPECT_EQ(2, ghx.getInt(16).get());                                     // Maximum Length of Simulation
-  EXPECT_NE("", ghx.getString(17).get());                                 // Undisturbed Ground Temperature Model
-  EXPECT_EQ(0.0005, ghx.getDouble(18).get());                             // G-Function Reference Ratio {dimensionless}
+  EXPECT_EQ(1.0, ghx.getDouble(6).get());                                 // Bore Hole Top Depth {m} (added 3.9.1)
+  EXPECT_EQ(76.2, ghx.getDouble(7).get());                                // Bore Hole Length
+  EXPECT_EQ(0.063508, ghx.getDouble(8).get());                            // Bore Hole Radius
+  EXPECT_EQ(0.692626, ghx.getDouble(9).get());                            // Ground Thermal Conductivity
+  EXPECT_EQ(2347000, ghx.getDouble(10).get());                            // Ground Thermal Heat Capacity
+  EXPECT_EQ(13.375, ghx.getDouble(11).get());                             // Ground Temperature
+  EXPECT_EQ(0.692626, ghx.getDouble(12).get());                           // Grout Thermal Conductivity
+  EXPECT_EQ(0.391312, ghx.getDouble(13).get());                           // Pipe Thermal Conductivity
+  EXPECT_EQ(0.0266667, ghx.getDouble(14).get());                          // Pipe Out Diameter
+  EXPECT_EQ(0.0253977, ghx.getDouble(15).get());                          // U-Tube Distance
+  EXPECT_EQ(0.00241285, ghx.getDouble(16).get());                         // Pipe Thickness
+  EXPECT_EQ(2, ghx.getInt(17).get());                                     // Maximum Length of Simulation
+  EXPECT_NE("", ghx.getString(18).get());                                 // Undisturbed Ground Temperature Model
+  EXPECT_EQ(0.0005, ghx.getDouble(19).get());                             // G-Function Reference Ratio {dimensionless}
 
   EXPECT_EQ(35u, ghx.numExtensibleGroups());
   auto eg1 = ghx.extensibleGroups()[0];
@@ -2540,9 +2541,9 @@ TEST_F(OSVersionFixture, update_3_6_1_to_3_7_0_GroundHeatExchangerVertical) {
   std::vector<WorkspaceObject> ukas = model->getObjectsByType("OS:Site:GroundTemperature:Undisturbed:KusudaAchenbach");
   ASSERT_EQ(1u, ukas.size());
 
-  ASSERT_TRUE(ghx.getTarget(17));
-  WorkspaceObject uka = ghx.getTarget(17).get();
-  EXPECT_EQ(uka.nameString(), ghx.getTarget(17)->nameString());
+  ASSERT_TRUE(ghx.getTarget(18));
+  WorkspaceObject uka = ghx.getTarget(18).get();
+  EXPECT_EQ(uka.nameString(), ghx.getTarget(18)->nameString());
   EXPECT_EQ(IddObjectType(IddObjectType::OS_Site_GroundTemperature_Undisturbed_KusudaAchenbach), uka.iddObject().type());
   EXPECT_EQ("Site Ground Temperature Undisturbed Kusuda Achenbach 1", uka.getString(1).get());  // Name
   EXPECT_EQ(0.692626, uka.getDouble(2).get());                                                  // Soil Thermal Conductivity
@@ -3938,8 +3939,8 @@ TEST_F(OSVersionFixture, update_3_6_1_to_3_7_0_ControllerOutdoorAir) {
   EXPECT_TRUE(coa.isEmpty(21));                                            // Time of Day Economizer Control Schedule Name
   EXPECT_EQ("No", coa.getString(22).get());                                // High Humidity Control
   EXPECT_TRUE(coa.isEmpty(23));                                            // Humidistat Control Zone Name
-  EXPECT_TRUE(coa.isEmpty(24));                                            // High Humidity Outdoor Air Flow Ratio
-  EXPECT_TRUE(coa.isEmpty(25));                                            // Control High Indoor Humidity Based on Outdoor Humidity Ratio
+  EXPECT_EQ(1.0, coa.getDouble(24).get());                                 // High Humidity Outdoor Air Flow Ratio
+  EXPECT_EQ("Yes", coa.getString(25).get());                               // Control High Indoor Humidity Based on Outdoor Humidity Ratio
   EXPECT_EQ("BypassWhenWithinEconomizerLimits", coa.getString(26).get());  // Heat Recovery Bypass Control Type
   EXPECT_EQ("InterlockedWithMechanicalCooling", coa.getString(27).get());  // Economizer Operation Staging
 }
@@ -3980,10 +3981,10 @@ TEST_F(OSVersionFixture, update_3_6_1_to_3_7_0_HeatPumpPlantLoopEIR) {
     const auto& hp = hps.front();
 
     // Previous last field
-    ASSERT_TRUE(hp.getTarget(15));
-    EXPECT_EQ("CoolEIRfPLR", hp.getTarget(15)->nameString());
+    ASSERT_TRUE(hp.getTarget(18));
+    EXPECT_EQ("CoolEIRfPLR", hp.getTarget(18)->nameString());
 
-    int insertionIndex = 16;
+    int insertionIndex = 19;
     EXPECT_EQ("Load", hp.getString(insertionIndex++).get());          // ControlType
     EXPECT_EQ("ConstantFlow", hp.getString(insertionIndex++).get());  // FlowMode
     EXPECT_EQ(0.0, hp.getDouble(insertionIndex++).get());             // MinimumPartLoadRatio
@@ -3999,10 +4000,10 @@ TEST_F(OSVersionFixture, update_3_6_1_to_3_7_0_HeatPumpPlantLoopEIR) {
     const auto& hp = hps.front();
 
     // Previous last field
-    ASSERT_TRUE(hp.getTarget(15));
-    EXPECT_EQ("HeatEIRfPLR", hp.getTarget(15)->nameString());
+    ASSERT_TRUE(hp.getTarget(18));
+    EXPECT_EQ("HeatEIRfPLR", hp.getTarget(18)->nameString());
 
-    int insertionIndex = 16;
+    int insertionIndex = 19;
     EXPECT_EQ(1.0, hp.getDouble(insertionIndex++).get());                // HeatingToCoolingCapacitySizingRatio
     EXPECT_EQ("CoolingCapacity", hp.getString(insertionIndex++).get());  // HeatPumpSizingMethod
     EXPECT_EQ("Load", hp.getString(insertionIndex++).get());             // ControlType
@@ -4206,4 +4207,365 @@ TEST_F(OSVersionFixture, update_3_7_0_to_3_8_0_ScheduleDay) {
   EXPECT_EQ(24, sch_day.getInt(4).get());                   // Hour 1
   EXPECT_EQ(0, sch_day.getInt(5).get());                    // Minute 1
   EXPECT_EQ(0, sch_day.getDouble(6).get());                 // Value Until Time 1
+}
+
+TEST_F(OSVersionFixture, update_3_8_0_to_3_9_0_ControllerOutdoorAir) {
+  openstudio::path path = resourcesPath() / toPath("osversion/3_9_0/test_vt_ControllerOutdoorAir.osm");
+  osversion::VersionTranslator vt;
+  boost::optional<model::Model> model = vt.loadModel(path);
+  ASSERT_TRUE(model) << "Failed to load " << path;
+
+  openstudio::path outPath = resourcesPath() / toPath("osversion/3_9_0/test_vt_ControllerOutdoorAir_updated.osm");
+  model->save(outPath, true);
+
+  std::vector<WorkspaceObject> controllers = model->getObjectsByType("OS:Controller:OutdoorAir");
+  ASSERT_EQ(1u, controllers.size());
+  WorkspaceObject controller = controllers[0];
+
+  EXPECT_EQ("Controller Outdoor Air 1", controller.getString(1).get());           // Name
+  EXPECT_TRUE(controller.isEmpty(2));                                             // Relief Air Outlet Node Name
+  EXPECT_TRUE(controller.isEmpty(3));                                             // Return Air Node Name
+  EXPECT_TRUE(controller.isEmpty(4));                                             // Mixed Air Node Name
+  EXPECT_TRUE(controller.isEmpty(5));                                             // Actuator Node Name
+  EXPECT_EQ(0.0, controller.getDouble(6).get());                                  // Minimum Outdoor Air Flow Rate {m3/s}
+  EXPECT_EQ("Autosize", controller.getString(7).get());                           // Maximum Outdoor Air Flow Rate {m3/s}
+  EXPECT_EQ("NoEconomizer", controller.getString(8).get());                       // Economizer Control Type
+  EXPECT_EQ("ModulateFlow", controller.getString(9).get());                       // Economizer Control Action Type
+  EXPECT_EQ(28.0, controller.getDouble(10).get());                                // Economizer Maximum Limit Dry-Bulb Temperature {C}
+  EXPECT_EQ(64000.0, controller.getDouble(11).get());                             // Economizer Maximum Limit Enthalpy {J/kg}
+  EXPECT_TRUE(controller.isEmpty(12));                                            // Economizer Maximum Limit Dewpoint Temperature {C}
+  EXPECT_TRUE(controller.isEmpty(13));                                            // Electronic Enthalpy Limit Curve Name
+  EXPECT_EQ(-100.0, controller.getDouble(14).get());                              // Economizer Minimum Limit Dry-Bulb Temperature {C}
+  EXPECT_EQ("NoLockout", controller.getString(15).get());                         // Lockout Type
+  EXPECT_EQ("FixedMinimum", controller.getString(16).get());                      // Minimum Limit Type
+  EXPECT_TRUE(controller.isEmpty(17));                                            // Minimum Outdoor Air Schedule Name
+  EXPECT_TRUE(controller.isEmpty(18));                                            // Minimum Fraction of Outdoor Air Schedule Name
+  EXPECT_TRUE(controller.isEmpty(19));                                            // Maximum Fraction of Outdoor Air Schedule Name
+  ASSERT_TRUE(controller.getTarget(20));                                          // Controller Mechanical Ventilation
+  EXPECT_TRUE(controller.isEmpty(21));                                            // Time of Day Economizer Control Schedule Name
+  EXPECT_EQ("No", controller.getString(22).get());                                // High Humidity Control
+  EXPECT_TRUE(controller.isEmpty(23));                                            // Humidistat Control Zone Name
+  EXPECT_EQ(1.0, controller.getDouble(24).get());                                 // High Humidity Outdoor Air Flow Ratio
+  EXPECT_EQ("Yes", controller.getString(25).get());                               // Control High Indoor Humidity Based on Outdoor Humidity Ratio
+  EXPECT_EQ("BypassWhenWithinEconomizerLimits", controller.getString(26).get());  // Heat Recovery Bypass Control Type
+  EXPECT_EQ("InterlockedWithMechanicalCooling", controller.getString(27).get());  // Economizer Operation Staging
+}
+
+TEST_F(OSVersionFixture, update_3_8_0_to_3_9_0_OutputControlFiles) {
+  openstudio::path path = resourcesPath() / toPath("osversion/3_9_0/test_vt_OutputControlFiles.osm");
+  osversion::VersionTranslator vt;
+  boost::optional<model::Model> model = vt.loadModel(path);
+  ASSERT_TRUE(model) << "Failed to load " << path;
+
+  openstudio::path outPath = resourcesPath() / toPath("osversion/3_9_0/test_vt_OutputControlFiles_updated.osm");
+  model->save(outPath, true);
+
+  std::vector<WorkspaceObject> outputcontrol_files = model->getObjectsByType("OS:OutputControl:Files");
+  ASSERT_EQ(1u, outputcontrol_files.size());
+  WorkspaceObject outputcontrol_file = outputcontrol_files[0];
+
+  EXPECT_EQ("No", outputcontrol_file.getString(1).get());    // Output CSV
+  EXPECT_EQ("Yes", outputcontrol_file.getString(2).get());   // Output MTR
+  EXPECT_EQ("Yes", outputcontrol_file.getString(3).get());   // Output ESO
+  EXPECT_EQ("Yes", outputcontrol_file.getString(4).get());   // Output EIO
+  EXPECT_EQ("Yes", outputcontrol_file.getString(5).get());   // Output Tabular
+  EXPECT_EQ("Yes", outputcontrol_file.getString(6).get());   // Output SQLite
+  EXPECT_EQ("Yes", outputcontrol_file.getString(7).get());   // Output JSON
+  EXPECT_EQ("Yes", outputcontrol_file.getString(8).get());   // Output AUDIT
+  EXPECT_EQ("Yes", outputcontrol_file.getString(9).get());   // Output Space Sizing
+  EXPECT_EQ("No", outputcontrol_file.getString(10).get());   // Output Zone Sizing
+  EXPECT_EQ("Yes", outputcontrol_file.getString(11).get());  // Output System Sizing
+  EXPECT_EQ("Yes", outputcontrol_file.getString(12).get());  // Output DXF
+  EXPECT_EQ("Yes", outputcontrol_file.getString(13).get());  // Output BND
+  EXPECT_EQ("Yes", outputcontrol_file.getString(14).get());  // Output RDD
+  EXPECT_EQ("Yes", outputcontrol_file.getString(15).get());  // Output MDD
+  EXPECT_EQ("Yes", outputcontrol_file.getString(16).get());  // Output MTD
+  EXPECT_EQ("Yes", outputcontrol_file.getString(17).get());  // Output SHD
+  EXPECT_EQ("Yes", outputcontrol_file.getString(18).get());  // Output DFS
+  EXPECT_EQ("Yes", outputcontrol_file.getString(19).get());  // Output GLHE
+  EXPECT_EQ("Yes", outputcontrol_file.getString(20).get());  // Output DelightIn
+  EXPECT_EQ("Yes", outputcontrol_file.getString(21).get());  // Output DelightELdmp
+  EXPECT_EQ("Yes", outputcontrol_file.getString(22).get());  // Output DelightDFdmp
+  EXPECT_EQ("Yes", outputcontrol_file.getString(23).get());  // Output EDD
+  EXPECT_EQ("Yes", outputcontrol_file.getString(24).get());  // Output DBG
+  EXPECT_EQ("Yes", outputcontrol_file.getString(25).get());  // Output PerfLog
+  EXPECT_EQ("Yes", outputcontrol_file.getString(26).get());  // Output SLN
+  EXPECT_EQ("Yes", outputcontrol_file.getString(27).get());  // Output SCI
+  EXPECT_EQ("Yes", outputcontrol_file.getString(28).get());  // Output WRL
+  EXPECT_EQ("Yes", outputcontrol_file.getString(29).get());  // Output Screen
+  EXPECT_EQ("Yes", outputcontrol_file.getString(30).get());  // Output ExtShd
+  EXPECT_EQ("Yes", outputcontrol_file.getString(31).get());  // Output Tarcog
+}
+
+TEST_F(OSVersionFixture, update_3_8_0_to_3_9_0_HeatPumpPlantLoopEIR) {
+  openstudio::path path = resourcesPath() / toPath("osversion/3_9_0/test_vt_HeatPumpPlantLoopEIR.osm");
+  osversion::VersionTranslator vt;
+  boost::optional<model::Model> model = vt.loadModel(path);
+  ASSERT_TRUE(model) << "Failed to load " << path;
+
+  openstudio::path outPath = resourcesPath() / toPath("osversion/3_9_0/test_vt_HeatPumpPlantLoopEIR_updated.osm");
+  model->save(outPath, true);
+
+  std::vector<WorkspaceObject> hp_heatings = model->getObjectsByType("OS:HeatPump:PlantLoop:EIR:Heating");
+  ASSERT_EQ(1u, hp_heatings.size());
+  WorkspaceObject hp_heating = hp_heatings[0];
+
+  EXPECT_EQ("Heat Pump Plant Loop EIR Heating 1", hp_heating.getString(1).get());  // Name
+  EXPECT_TRUE(hp_heating.isEmpty(2));                                              // Load Side Inlet Node Name
+  EXPECT_TRUE(hp_heating.isEmpty(3));                                              // Load Side Outlet Node Name
+  EXPECT_EQ("AirSource", hp_heating.getString(4).get());                           // Condenser Type
+  EXPECT_TRUE(hp_heating.isEmpty(5));                                              // Source Side Inlet Node Name
+  EXPECT_TRUE(hp_heating.isEmpty(6));                                              // Source Side Outlet Node Name
+  EXPECT_TRUE(hp_heating.isEmpty(7));                                              // Heat Recovery Inlet Node Name
+  EXPECT_TRUE(hp_heating.isEmpty(8));                                              // Heat Recovery Outlet Node Name
+  EXPECT_TRUE(hp_heating.isEmpty(9));                                              // Companion Heat Pump Name
+  EXPECT_EQ("Autosize", hp_heating.getString(10).get());                           // Load Side Reference Flow Rate {m3/s}
+  EXPECT_EQ("Autosize", hp_heating.getString(11).get());                           // Source Side Reference Flow Rate {m3/s}
+  EXPECT_EQ("Autosize", hp_heating.getString(12).get());                           // Heat Recovery Reference Flow Rate {m3/s}
+  EXPECT_EQ("Autosize", hp_heating.getString(13).get());                           // Reference Capacity {W}
+  EXPECT_EQ(7.5, hp_heating.getDouble(14).get());                                  // Reference Coefficient of Performance {W/W}
+  EXPECT_EQ(4.5, hp_heating.getDouble(36).get());                                  // Minimum Heat Recovery Outlet Temperature
+  EXPECT_TRUE(hp_heating.isEmpty(37));  // Heat Recovery Capacity Modifier Function of Temperature Curve Name
+  EXPECT_TRUE(hp_heating.isEmpty(38));  // Heat Recovery Electric Input to Output Ratio Modifier Function of Temperature Curve Name
+
+  std::vector<WorkspaceObject> hp_coolings = model->getObjectsByType("OS:HeatPump:PlantLoop:EIR:Cooling");
+  ASSERT_EQ(1u, hp_coolings.size());
+  WorkspaceObject hp_cooling = hp_coolings[0];
+
+  EXPECT_EQ("Heat Pump Plant Loop EIR Cooling 1", hp_cooling.getString(1).get());  // Name
+  EXPECT_TRUE(hp_cooling.isEmpty(2));                                              // Load Side Inlet Node Name
+  EXPECT_TRUE(hp_cooling.isEmpty(3));                                              // Load Side Outlet Node Name
+  EXPECT_EQ("AirSource", hp_cooling.getString(4).get());                           // Condenser Type
+  EXPECT_TRUE(hp_cooling.isEmpty(5));                                              // Source Side Inlet Node Name
+  EXPECT_TRUE(hp_cooling.isEmpty(6));                                              // Source Side Outlet Node Name
+  EXPECT_TRUE(hp_cooling.isEmpty(7));                                              // Heat Recovery Inlet Node Name
+  EXPECT_TRUE(hp_cooling.isEmpty(8));                                              // Heat Recovery Outlet Node Name
+  EXPECT_TRUE(hp_cooling.isEmpty(9));                                              // Companion Heat Pump Name
+  EXPECT_EQ("Autosize", hp_cooling.getString(10).get());                           // Load Side Reference Flow Rate {m3/s}
+  EXPECT_EQ("Autosize", hp_cooling.getString(11).get());                           // Source Side Reference Flow Rate {m3/s}
+  EXPECT_EQ("Autosize", hp_cooling.getString(12).get());                           // Heat Recovery Reference Flow Rate {m3/s}
+  EXPECT_EQ("Autosize", hp_cooling.getString(13).get());                           // Reference Capacity {W}
+  EXPECT_EQ(7.5, hp_cooling.getDouble(14).get());                                  // Reference Coefficient of Performance {W/W}
+  EXPECT_EQ(60.0, hp_cooling.getDouble(26).get());                                 // Maximum Heat Recovery Outlet Temperature
+  EXPECT_TRUE(hp_cooling.isEmpty(27));             // Heat Recovery Capacity Modifier Function of Temperature Curve Name
+  EXPECT_TRUE(hp_cooling.isEmpty(28));             // Heat Recovery Electric Input to Output Ratio Modifier Function of Temperature Curve Name
+  EXPECT_TRUE(hp_cooling.isEmpty(29));             // Thermosiphon Capacity Fraction Curve Name
+  EXPECT_EQ(0.0, hp_cooling.getDouble(30).get());  // Thermosiphon Minimum Temperature Difference
+}
+
+TEST_F(OSVersionFixture, update_3_8_0_to_3_9_0_AirTerminalSingleDuctPIUReheat) {
+  openstudio::path path = resourcesPath() / toPath("osversion/3_9_0/test_vt_AirTerminalSingleDuctPIUReheat.osm");
+  osversion::VersionTranslator vt;
+  boost::optional<model::Model> model = vt.loadModel(path);
+  ASSERT_TRUE(model) << "Failed to load " << path;
+
+  openstudio::path outPath = resourcesPath() / toPath("osversion/3_9_0/test_vt_AirTerminalSingleDuctPIUReheat_updated.osm");
+  model->save(outPath, true);
+
+  std::vector<WorkspaceObject> seriess = model->getObjectsByType("OS:AirTerminal:SingleDuct:SeriesPIU:Reheat");
+  ASSERT_EQ(1u, seriess.size());
+  WorkspaceObject series = seriess[0];
+
+  EXPECT_EQ("Air Terminal Single Duct Series PIU Reheat 1", series.getString(1).get());  // Name
+  EXPECT_TRUE(series.isEmpty(2));                                                        // Availability Schedule Name
+  EXPECT_EQ("autosize", series.getString(3).get());                                      // Maximum Air Flow Rate {m3/s}
+  EXPECT_EQ("autosize", series.getString(4).get());                                      // Maximum Primary Air Flow Rate {m3/s}
+  EXPECT_EQ("autosize", series.getString(5).get());                                      // Minimum Primary Air Flow Fraction
+  EXPECT_TRUE(series.isEmpty(6));                                                        // Supply Air Inlet Node
+  EXPECT_TRUE(series.isEmpty(7));                                                        // Secondary Air Inlet Node
+  EXPECT_TRUE(series.isEmpty(8));                                                        // Outlet Node
+  EXPECT_TRUE(series.isEmpty(9));                                                        // Reheat Coil Air Inlet Node
+  EXPECT_TRUE(series.isEmpty(10));                                                       // Zone Mixer Name
+  EXPECT_TRUE(series.getTarget(11));                                                     // Fan Name
+  EXPECT_TRUE(series.getTarget(12));                                                     // Reheat Coil Name
+  EXPECT_EQ("autosize", series.getString(13).get());                                     // Maximum Hot Water or Steam Flow Rate {m3/s}
+  EXPECT_EQ(0, series.getDouble(14).get());                                              // Minimum Hot Water or Steam Flow Rate {m3/s}
+  EXPECT_EQ(0.001, series.getDouble(15).get());                                          // Convergence Tolerance
+  EXPECT_EQ("ConstantSpeed", series.getString(16).get());                                // Fan Control Type
+  EXPECT_EQ(0.3, series.getDouble(17).get());                                            // Minimum Fan Turn Down Ratio
+  EXPECT_TRUE(series.isEmpty(18));                                                       // Heating Control Type
+  EXPECT_EQ(32.1, series.getDouble(19).get());                                           // Design Heating Discharge Air Temperature
+  EXPECT_EQ(37.7, series.getDouble(20).get());                                           // High Limit Heating Discharge Air Temperature
+
+  std::vector<WorkspaceObject> parallels = model->getObjectsByType("OS:AirTerminal:SingleDuct:ParallelPIU:Reheat");
+  ASSERT_EQ(1u, parallels.size());
+  WorkspaceObject parallel = parallels[0];
+
+  EXPECT_EQ("Air Terminal Single Duct Parallel PIU Reheat 1", parallel.getString(1).get());  // Name
+  EXPECT_TRUE(parallel.getTarget(2));                                                        // Availability Schedule Name
+  EXPECT_EQ("Autosize", parallel.getString(3).get());                                        // Maximum Primary Air Flow Rate {m3/s}
+  EXPECT_EQ("Autosize", parallel.getString(4).get());                                        // Maximum Secondary Air Flow Rate {m3/s}
+  EXPECT_EQ("Autosize", parallel.getString(5).get());                                        // Minimum Primary Air Flow Fraction
+  EXPECT_EQ("Autosize", parallel.getString(6).get());                                        // Fan On Flow Fraction
+  EXPECT_TRUE(parallel.isEmpty(7));                                                          // Supply Air Inlet Node Name
+  EXPECT_TRUE(parallel.isEmpty(8));                                                          // Secondary Air Inlet Node Name
+  EXPECT_TRUE(parallel.isEmpty(9));                                                          // Outlet Node Name
+  EXPECT_TRUE(parallel.isEmpty(10));                                                         // Reheat Coil Air Inlet Node Name
+  EXPECT_TRUE(parallel.isEmpty(11));                                                         // Zone Mixer Name
+  EXPECT_TRUE(parallel.getTarget(12));                                                       // Fan Name
+  EXPECT_TRUE(parallel.getTarget(13));                                                       // Reheat Coil Name
+  EXPECT_EQ("Autosize", parallel.getString(14).get());                                       // Maximum Hot Water or Steam Flow Rate {m3/s}
+  EXPECT_EQ(0, parallel.getDouble(15).get());                                                // Minimum Hot Water or Steam Flow Rate {m3/s}
+  EXPECT_EQ(0.001, parallel.getDouble(16).get());                                            // Convergence Tolerance
+  EXPECT_EQ("ConstantSpeed", parallel.getString(17).get());                                  // Fan Control Type
+  EXPECT_EQ(0.3, parallel.getDouble(18).get());                                              // Minimum Fan Turn Down Ratio
+  EXPECT_TRUE(parallel.isEmpty(19));                                                         // Heating Control Type
+  EXPECT_EQ(32.1, parallel.getDouble(20).get());                                             // Design Heating Discharge Air Temperature
+  EXPECT_EQ(37.7, parallel.getDouble(21).get());                                             // High Limit Heating Discharge Air Temperature
+}
+
+TEST_F(OSVersionFixture, update_3_8_0_to_3_9_0_ChillerElectric) {
+  openstudio::path path = resourcesPath() / toPath("osversion/3_9_0/test_vt_ChillerElectric.osm");
+  osversion::VersionTranslator vt;
+  boost::optional<model::Model> model = vt.loadModel(path);
+  ASSERT_TRUE(model) << "Failed to load " << path;
+
+  openstudio::path outPath = resourcesPath() / toPath("osversion/3_9_0/test_vt_ChillerElectric_updated.osm");
+  model->save(outPath, true);
+
+  std::vector<WorkspaceObject> chiller_electric_eirs = model->getObjectsByType("OS:Chiller:Electric:EIR");
+  ASSERT_EQ(1u, chiller_electric_eirs.size());
+  WorkspaceObject chiller_electric_eir = chiller_electric_eirs[0];
+
+  EXPECT_EQ("Chiller Electric EIR 1", chiller_electric_eir.getString(1).get());  // Name
+  EXPECT_EQ("ConstantFlow", chiller_electric_eir.getString(35).get());           // Condenser Flow Control
+  EXPECT_TRUE(chiller_electric_eir.isEmpty(36));             // Condenser Loop Flow Rate Fraction Function of Loop Part Load Ratio Curve Name
+  EXPECT_TRUE(chiller_electric_eir.isEmpty(37));             // Temperature Difference Across Condenser Schedule Name
+  EXPECT_EQ(0.2, chiller_electric_eir.getDouble(38).get());  // Condenser Minimum Flow Fraction
+  EXPECT_TRUE(chiller_electric_eir.isEmpty(39));             // Thermosiphon Capacity Fraction Curve Name
+  EXPECT_EQ(0.0, chiller_electric_eir.getDouble(40).get());  // Thermosiphon Minimum Temperature Difference
+
+  std::vector<WorkspaceObject> chiller_electric_reformulatedeirs = model->getObjectsByType("OS:Chiller:Electric:ReformulatedEIR");
+  ASSERT_EQ(1u, chiller_electric_reformulatedeirs.size());
+  WorkspaceObject chiller_electric_reformulatedeir = chiller_electric_reformulatedeirs[0];
+
+  EXPECT_EQ("Chiller Electric Reformulated EIR 1", chiller_electric_reformulatedeir.getString(1).get());  // Name
+  EXPECT_EQ("ConstantFlow", chiller_electric_reformulatedeir.getString(31).get());                        // Condenser Flow Control
+  EXPECT_TRUE(chiller_electric_reformulatedeir.isEmpty(32));  // Condenser Loop Flow Rate Fraction Function of Loop Part Load Ratio Curve Name
+  EXPECT_TRUE(chiller_electric_reformulatedeir.isEmpty(33));  // Temperature Difference Across Condenser Schedule Name
+  EXPECT_EQ(0.2, chiller_electric_reformulatedeir.getDouble(34).get());  // Condenser Minimum Flow Fraction
+  EXPECT_TRUE(chiller_electric_reformulatedeir.isEmpty(35));             // Thermosiphon Capacity Fraction Curve Name
+  EXPECT_EQ(0.0, chiller_electric_reformulatedeir.getDouble(36).get());  // Thermosiphon Minimum Temperature Difference
+}
+
+TEST_F(OSVersionFixture, update_3_8_0_to_3_9_0_ZoneHVACTerminalUnitVRF) {
+  openstudio::path path = resourcesPath() / toPath("osversion/3_9_0/test_vt_ZoneHVACTerminalUnitVRF.osm");
+  osversion::VersionTranslator vt;
+  boost::optional<model::Model> model = vt.loadModel(path);
+  ASSERT_TRUE(model) << "Failed to load " << path;
+
+  openstudio::path outPath = resourcesPath() / toPath("osversion/3_9_0/test_vt_ZoneHVACTerminalUnitVRF_updated.osm");
+  model->save(outPath, true);
+
+  std::vector<WorkspaceObject> fanSMs = model->getObjectsByType("OS:Fan:SystemModel");
+  ASSERT_EQ(1u, fanSMs.size());
+
+  std::vector<WorkspaceObject> vrfs = model->getObjectsByType("OS:ZoneHVAC:TerminalUnit:VariableRefrigerantFlow");
+  ASSERT_EQ(1u, vrfs.size());
+  WorkspaceObject vrf = vrfs[0];
+
+  // Check the Fan, converted from Fan:VariableVolume to Fan:SystemModel
+  ASSERT_TRUE(vrf.getTarget(14));
+  WorkspaceObject fan = vrf.getTarget(14).get();
+
+  EXPECT_EQ(IddObjectType(IddObjectType::OS_Fan_SystemModel), fan.iddObject().type());
+  EXPECT_EQ("Fan Variable Volume 1", fan.getString(OS_Fan_SystemModelFields::Name).get());
+  EXPECT_EQ("Always On Discrete", fan.getString(OS_Fan_SystemModelFields::AvailabilityScheduleName).get());
+  EXPECT_TRUE(fan.isEmpty(OS_Fan_SystemModelFields::AirInletNodeName));
+  EXPECT_TRUE(fan.isEmpty(OS_Fan_SystemModelFields::AirOutletNodeName));
+  EXPECT_EQ("Autosize", fan.getString(OS_Fan_SystemModelFields::DesignMaximumAirFlowRate).get());
+  EXPECT_EQ("Continuous", fan.getString(OS_Fan_SystemModelFields::SpeedControlMethod).get());
+  EXPECT_EQ(0.0, fan.getDouble(OS_Fan_SystemModelFields::ElectricPowerMinimumFlowRateFraction).get());
+  EXPECT_EQ(1017.592, fan.getDouble(OS_Fan_SystemModelFields::DesignPressureRise).get());
+  EXPECT_EQ(0.93, fan.getDouble(OS_Fan_SystemModelFields::MotorEfficiency).get());
+  EXPECT_EQ(1.0, fan.getDouble(OS_Fan_SystemModelFields::MotorInAirStreamFraction).get());
+  EXPECT_EQ("Autosize", fan.getString(OS_Fan_SystemModelFields::DesignElectricPowerConsumption).get());
+  EXPECT_EQ("TotalEfficiencyAndPressure", fan.getString(OS_Fan_SystemModelFields::DesignPowerSizingMethod).get());
+  EXPECT_EQ(840.0, fan.getDouble(OS_Fan_SystemModelFields::ElectricPowerPerUnitFlowRate).get());
+  EXPECT_EQ(1.66667, fan.getDouble(OS_Fan_SystemModelFields::ElectricPowerPerUnitFlowRatePerUnitPressure).get());
+  EXPECT_EQ(0.6045, fan.getDouble(OS_Fan_SystemModelFields::FanTotalEfficiency).get());
+  ASSERT_TRUE(fan.getTarget(OS_Fan_SystemModelFields::ElectricPowerFunctionofFlowFractionCurveName));
+  EXPECT_EQ("Fan Variable Volume 1 Curve", fan.getTarget(OS_Fan_SystemModelFields::ElectricPowerFunctionofFlowFractionCurveName)->nameString());
+  EXPECT_TRUE(fan.isEmpty(OS_Fan_SystemModelFields::NightVentilationModePressureRise));
+  EXPECT_TRUE(fan.isEmpty(OS_Fan_SystemModelFields::NightVentilationModeFlowFraction));
+  EXPECT_TRUE(fan.isEmpty(OS_Fan_SystemModelFields::MotorLossZoneName));
+  EXPECT_EQ(0.0, fan.getDouble(OS_Fan_SystemModelFields::MotorLossRadiativeFraction).get());
+  EXPECT_EQ("General", fan.getString(OS_Fan_SystemModelFields::EndUseSubcategory).get());
+
+  std::vector<WorkspaceObject> curveQuartics = model->getObjectsByType("OS:Curve:Quartic");
+  ASSERT_EQ(1u, curveQuartics.size());
+  WorkspaceObject curveQuartic = curveQuartics[0];
+
+  EXPECT_EQ("Fan Variable Volume 1 Curve", curveQuartic.getString(1).get());
+  EXPECT_EQ(0.040759894, curveQuartic.getDouble(2).get());
+  EXPECT_EQ(0.08804497, curveQuartic.getDouble(3).get());
+  EXPECT_EQ(-0.07292612, curveQuartic.getDouble(4).get());
+  EXPECT_EQ(0.943739823, curveQuartic.getDouble(5).get());
+  EXPECT_EQ(0.0, curveQuartic.getDouble(6).get());
+  EXPECT_EQ(0.0, curveQuartic.getDouble(7).get());
+  EXPECT_EQ(1.0, curveQuartic.getDouble(8).get());
+  EXPECT_EQ(0.0, curveQuartic.getDouble(9).get());
+  EXPECT_EQ(5.0, curveQuartic.getDouble(10).get());
+  EXPECT_EQ("Dimensionless", curveQuartic.getString(11).get());
+  EXPECT_EQ("Dimensionless", curveQuartic.getString(12).get());
+}
+
+TEST_F(OSVersionFixture, update_3_8_0_to_3_9_0_SizingZone) {
+  openstudio::path path = resourcesPath() / toPath("osversion/3_9_0/test_vt_SizingZone.osm");
+  osversion::VersionTranslator vt;
+  boost::optional<model::Model> model = vt.loadModel(path);
+  ASSERT_TRUE(model) << "Failed to load " << path;
+
+  openstudio::path outPath = resourcesPath() / toPath("osversion/3_9_0/test_vt_SizingZone_updated.osm");
+  model->save(outPath, true);
+
+  std::vector<WorkspaceObject> sizing_zones = model->getObjectsByType("OS:Sizing:Zone");
+  ASSERT_EQ(1u, sizing_zones.size());
+  WorkspaceObject sizing_zone = sizing_zones[0];
+
+  EXPECT_EQ("Coincident", sizing_zone.getString(39).get());  // Sizing Option
+}
+
+TEST_F(OSVersionFixture, update_3_9_0_to_3_9_1_WaterHeaterHeatPump) {
+  openstudio::path path = resourcesPath() / toPath("osversion/3_9_1/test_vt_WaterHeaterHeatPump.osm");
+  osversion::VersionTranslator vt;
+  boost::optional<model::Model> model = vt.loadModel(path);
+  ASSERT_TRUE(model) << "Failed to load " << path;
+
+  openstudio::path outPath = resourcesPath() / toPath("osversion/3_9_1/test_vt_WaterHeaterHeatPump_updated.osm");
+  model->save(outPath, true);
+
+  std::vector<WorkspaceObject> hpwhs = model->getObjectsByType("OS:WaterHeater:HeatPump");
+  ASSERT_EQ(1u, hpwhs.size());
+  const auto& hpwh = hpwhs.front();
+
+  EXPECT_EQ("Water Heater Heat Pump 1", hpwh.getString(1).get());  // Name
+
+  // Before insertion: Inlet Air Mixer Schedule
+  ASSERT_TRUE(hpwh.getTarget(24));
+  EXPECT_EQ("HPWH Inlet Air Mixer Schedule", hpwh.getTarget(24)->nameString());
+
+  // New Field: Tank Element Control Logic
+  EXPECT_EQ("Simultaneous", hpwh.getString(25).get());
+
+  // After insertion and also last field: Control Sensor Location In Stratified Tank
+  EXPECT_EQ("Heater2", hpwh.getString(26).get());
+}
+
+TEST_F(OSVersionFixture, update_3_9_0_to_3_9_1_GroundHeatExchangerVertical) {
+  openstudio::path path = resourcesPath() / toPath("osversion/3_9_1/test_vt_GroundHeatExchangerVertical.osm");
+  osversion::VersionTranslator vt;
+  boost::optional<model::Model> model = vt.loadModel(path);
+  ASSERT_TRUE(model) << "Failed to load " << path;
+
+  openstudio::path outPath = resourcesPath() / toPath("osversion/3_9_1/test_vt_GroundHeatExchangerVertical_updated.osm");
+  model->save(outPath, true);
+
+  std::vector<WorkspaceObject> ghe_verts = model->getObjectsByType("OS:GroundHeatExchanger:Vertical");
+  ASSERT_EQ(1u, ghe_verts.size());
+  WorkspaceObject ghe_vert = ghe_verts[0];
+
+  EXPECT_EQ(120, ghe_vert.getInt(5).get());      // Number of Bore Holes
+  EXPECT_EQ(1.0, ghe_vert.getDouble(6).get());   // Bore Hole Top Depth
+  EXPECT_EQ(76.2, ghe_vert.getDouble(7).get());  // Bore Hole Length
 }

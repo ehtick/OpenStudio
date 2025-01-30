@@ -144,7 +144,9 @@ namespace osversion {
     m_updateMethods[VersionString("3.6.0")] = &VersionTranslator::update_3_5_1_to_3_6_0;
     m_updateMethods[VersionString("3.7.0")] = &VersionTranslator::update_3_6_1_to_3_7_0;
     m_updateMethods[VersionString("3.8.0")] = &VersionTranslator::update_3_7_0_to_3_8_0;
-    // m_updateMethods[VersionString("3.8.0")] = &VersionTranslator::defaultUpdate;
+    m_updateMethods[VersionString("3.9.0")] = &VersionTranslator::update_3_8_0_to_3_9_0;
+    m_updateMethods[VersionString("3.9.1")] = &VersionTranslator::update_3_9_0_to_3_9_1;
+    // m_updateMethods[VersionString("3.10.0")] = &VersionTranslator::defaultUpdate;
 
     // List of previous versions that may be updated to this one.
     //   - To increment the translator, add an entry for the version just released (branched for
@@ -181,9 +183,9 @@ namespace osversion {
       VersionString("2.7.1"),  VersionString("2.7.2"),  VersionString("2.8.0"),  VersionString("2.8.1"),  VersionString("2.9.0"),
       VersionString("2.9.1"),  VersionString("3.0.0"),  VersionString("3.0.1"),  VersionString("3.1.0"),  VersionString("3.2.0"),
       VersionString("3.2.1"),  VersionString("3.3.0"),  VersionString("3.4.0"),  VersionString("3.5.0"),  VersionString("3.5.1"),
-      VersionString("3.6.0"),  VersionString("3.6.1"),  VersionString("3.7.0"),
+      VersionString("3.6.0"),  VersionString("3.6.1"),  VersionString("3.7.0"),  VersionString("3.8.0"),  VersionString("3.9.0"),
       // Note: do **not** include the **current** version in m_startVersions, stop at the previous release
-      //VersionString("3.8.0"),
+      //VersionString("3.9.1"),
     };
   }
 
@@ -331,8 +333,7 @@ namespace osversion {
     OS_ASSERT(tempModel.strictnessLevel() == StrictnessLevel::Minimal);
     std::vector<std::shared_ptr<InterobjectIssueInformation>> issueInfo = fixInterobjectIssuesStage1(tempModel, m_originalVersion);
     if (!tempModel.isValid(StrictnessLevel::Draft)) {
-      LOG(Error, "Model with Version " << openStudioVersion() << " IDD is not valid to draft "
-                                       << "strictness level.");
+      LOG(Error, "Model with Version " << openStudioVersion() << " IDD is not valid to draft " << "strictness level.");
       LOG(Error, tempModel.validityReport(StrictnessLevel::Draft));
       return boost::none;
     }
@@ -381,8 +382,7 @@ namespace osversion {
     // bracket allowable versions
     LOG(Debug, "Starting translation from Version " << currentVersion.str() << ".");
     if (currentVersion < VersionString("0.7.0")) {
-      LOG(Error, "Version translation is not provided for OpenStudio models created prior to "
-                   << "Version 0.7.0.");
+      LOG(Error, "Version translation is not provided for OpenStudio models created prior to " << "Version 0.7.0.");
       return;
     }
     if (currentVersion > VersionString(openStudioVersion())) {
@@ -390,8 +390,8 @@ namespace osversion {
         // if currentVersion is just one ahead, may be a developer using the cloud.
         // let it pass as if currentVersion == openStudioVersion(), with a warning
         if (VersionString(openStudioVersion()).isNextVersion(currentVersion)) {
-          LOG(Warn, "Version extracted from file '" << currentVersion.str() << "' is one "
-                                                    << "increment ahead of OpenStudio Version " << openStudioVersion() << ". "
+          LOG(Warn, "Version extracted from file '" << currentVersion.str() << "' is one " << "increment ahead of OpenStudio Version "
+                                                    << openStudioVersion() << ". "
                                                     << "Proceeding as if these versions are the same. Use with caution.");
           currentVersion = VersionString(openStudioVersion());
         } else {
@@ -620,8 +620,7 @@ namespace osversion {
           OS_ASSERT(ok);
           result = objCopy;
         } else {
-          LOG(Warn, "Tried to update the file path '" << original << "' to the new format, "
-                                                      << "but was unsuccessful.");
+          LOG(Warn, "Tried to update the file path '" << original << "' to the new format, " << "but was unsuccessful.");
         }
       }
     }
@@ -771,8 +770,8 @@ namespace osversion {
               match = candidates[0];
             }
             if (match && match->name()) {
-              LOG(Warn, "Found match for object in OS:ComponentData contents list by type only, even "
-                          << "though this type of object (" << typeStr << ") has a name field.");
+              LOG(Warn, "Found match for object in OS:ComponentData contents list by type only, even " << "though this type of object (" << typeStr
+                                                                                                       << ") has a name field.");
             }
           }
 
@@ -786,8 +785,7 @@ namespace osversion {
             } else {
               LOG(Warn, "Unable to locate object in OS:ComponentData contents list called out "
                           << "as object type '" << typeStr << "', and with name '" << nameStr
-                          << "'. Skipping this object (that is, removing it from the Component "
-                          << "definition).");
+                          << "'. Skipping this object (that is, removing it from the Component " << "definition).");
               continue;
             }
           }
@@ -1095,7 +1093,7 @@ namespace osversion {
             }
           }
         }  // for keys
-      }    // for users
+      }  // for users
       m_refactored.emplace_back(originalSchedule, schedule.idfObject());
       for (const auto& candidate : candidates) {
         model::ModelObjectVector wholeCandidate = getRecursiveChildren(candidate);
@@ -8969,7 +8967,7 @@ namespace osversion {
 
       if (iddname == "OS:HeatExchanger:AirToAir:SensibleAndLatent") {
 
-        // 4 Fields have been added from 3.7.0 to 3.8.0:
+        // 4 Fields have been removed from 3.7.0 to 3.8.0:
         // ----------------------------------------------
         // * Sensible Effectiveness at 75% Heating Air Flow {dimensionless} * 6
         // * Latent Effectiveness at 75% Heating Air Flow {dimensionless} * 7
@@ -9195,6 +9193,516 @@ namespace osversion {
     return ss.str();
 
   }  // end update_3_7_0_to_3_8_0
+
+  std::string VersionTranslator::update_3_8_0_to_3_9_0(const IdfFile& idf_3_8_0, const IddFileAndFactoryWrapper& idd_3_9_0) {
+    std::stringstream ss;
+    boost::optional<std::string> value;
+
+    ss << idf_3_8_0.header() << '\n' << '\n';
+    IdfFile targetIdf(idd_3_9_0.iddFile());
+    ss << targetIdf.versionObject().get();
+
+    // ZoneHVAC:TerminalUnit:VariableRefrigerantFlow prescan
+    // In E+ v24.2.0, we must change Fan:VariableVolume to Fan:SystemModel for Supply Air Fan Object Type / Name.
+    std::vector<std::string> vrfFanVVHandleStrs;
+    {
+      std::vector<IdfObject> fanVVs = idf_3_8_0.getObjectsByType(idf_3_8_0.iddFile().getObject("OS:Fan:VariableVolume").get());
+      std::vector<std::string> fanVVHandleStrs;
+      fanVVHandleStrs.reserve(fanVVs.size());
+      vrfFanVVHandleStrs.reserve(fanVVs.size());
+      std::transform(fanVVs.cbegin(), fanVVs.cend(), std::back_inserter(fanVVHandleStrs),
+                     [](const auto& idfObject) { return idfObject.getString(0).get(); });
+      for (const auto& vrf : idf_3_8_0.getObjectsByType(idf_3_8_0.iddFile().getObject("OS:ZoneHVAC:TerminalUnit:VariableRefrigerantFlow").get())) {
+        if (auto fanHandleStr_ = vrf.getString(14, false, true)) {
+          if (std::find(fanVVHandleStrs.cbegin(), fanVVHandleStrs.cend(), fanHandleStr_.get()) != fanVVHandleStrs.cend()) {
+            vrfFanVVHandleStrs.emplace_back(std::move(*fanHandleStr_));
+          }
+        }
+      }
+    }
+
+    for (const IdfObject& object : idf_3_8_0.objects()) {
+      auto iddname = object.iddObject().name();
+
+      if (iddname == "OS:Controller:OutdoorAir") {
+
+        // 2 Fields have been made required from 3.8.0 to 3.9.0:
+        // ----------------------------------------------
+        // * High Humidity Outdoor Air Flow Ratio * 24
+        // * Control High Indoor Humidity Based on Outdoor Humidity Ratio * 25
+
+        auto iddObject = idd_3_9_0.getObject(iddname);
+        IdfObject newObject(iddObject.get());
+
+        for (size_t i = 0; i < object.numFields(); ++i) {
+          if ((value = object.getString(i))) {
+            newObject.setString(i, value.get());
+          }
+        }
+
+        if (newObject.isEmpty(24)) {
+          newObject.setDouble(24, 1.0);
+        }
+        if (newObject.isEmpty(25)) {
+          newObject.setString(25, "Yes");
+        }
+
+        ss << newObject;
+        m_refactored.emplace_back(std::move(object), std::move(newObject));
+
+      } else if (iddname == "OS:OutputControl:Files") {
+        // 1 Field has been added from 3.8.0 to 3.9.0:
+        // ----------------------------------------------
+        // * Output Space Sizing * 9
+        auto iddObject = idd_3_9_0.getObject(iddname);
+        IdfObject newObject(iddObject.get());
+
+        for (size_t i = 0; i < object.numFields(); ++i) {
+          if ((value = object.getString(i))) {
+            if (i < 9) {
+              newObject.setString(i, value.get());
+            } else {
+              newObject.setString(i + 1, value.get());
+            }
+          }
+        }
+
+        newObject.setString(9, "Yes");
+
+        ss << newObject;
+        m_refactored.emplace_back(std::move(object), std::move(newObject));
+
+      } else if (iddname == "OS:HeatPump:PlantLoop:EIR:Heating") {
+
+        // 3 Fields have been inserted from 3.8.0 to 3.9.0:
+        // ----------------------------------------------
+        // * Heat Recovery Inlet Node Name * 7
+        // * Heat Recovery Outlet Node Name * 8
+        // * Heat Recovery Reference Flow Rate * 12
+
+        // 1 required Field has been added from 3.8.0 to 3.9.0:
+        // ----------------------------------------------
+        // * Minimum Heat Recovery Outlet Temperature * 36
+
+        auto iddObject = idd_3_9_0.getObject(iddname);
+        IdfObject newObject(iddObject.get());
+
+        for (size_t i = 0; i < object.numFields(); ++i) {
+          if ((value = object.getString(i))) {
+            if (i < 7) {
+              newObject.setString(i, value.get());
+            } else if (i < 10) {
+              newObject.setString(i + 2, value.get());
+            } else {
+              newObject.setString(i + 3, value.get());
+            }
+          }
+        }
+
+        newObject.setString(7, "");
+        newObject.setString(8, "");
+        newObject.setString(12, "Autosize");
+        newObject.setDouble(36, 4.5);
+
+        ss << newObject;
+        m_refactored.emplace_back(std::move(object), std::move(newObject));
+
+      } else if (iddname == "OS:HeatPump:PlantLoop:EIR:Cooling") {
+
+        // 3 Fields have been inserted from 3.8.0 to 3.9.0:
+        // ----------------------------------------------
+        // * Heat Recovery Inlet Node Name * 7
+        // * Heat Recovery Outlet Node Name * 8
+        // * Heat Recovery Reference Flow Rate * 12
+
+        // 2 required Fields have been added from 3.8.0 to 3.9.0:
+        // ----------------------------------------------
+        // * Maximum Heat Recovery Outlet Temperature * 26
+        // * Minimum Thermosiphon Minimum Temperature Difference * 30
+
+        auto iddObject = idd_3_9_0.getObject(iddname);
+        IdfObject newObject(iddObject.get());
+
+        for (size_t i = 0; i < object.numFields(); ++i) {
+          if ((value = object.getString(i))) {
+            if (i < 7) {
+              newObject.setString(i, value.get());
+            } else if (i < 10) {
+              newObject.setString(i + 2, value.get());
+            } else {
+              newObject.setString(i + 3, value.get());
+            }
+          }
+        }
+
+        newObject.setString(7, "");
+        newObject.setString(8, "");
+        newObject.setString(12, "Autosize");
+        newObject.setDouble(26, 60.0);
+        newObject.setDouble(30, 0.0);
+
+        ss << newObject;
+        m_refactored.emplace_back(std::move(object), std::move(newObject));
+
+      } else if (iddname == "OS:AirTerminal:SingleDuct:SeriesPIU:Reheat") {
+
+        // 5 Fields have been added from 3.8.0 to 3.9.0:
+        // ----------------------------------------------
+        // * Fan Control Type * 16
+        // * Minimum Fan Turn Down Ratio * 17
+        // * Heating Control Type * 18
+        // * Design Heating Discharge Air Temperature * 19
+        // * High Limit Heating Discharge Air Temperature * 20
+
+        auto iddObject = idd_3_9_0.getObject(iddname);
+        IdfObject newObject(iddObject.get());
+
+        for (size_t i = 0; i < object.numFields(); ++i) {
+          if ((value = object.getString(i))) {
+            if (i < 16) {
+              newObject.setString(i, value.get());
+            }
+          }
+        }
+
+        newObject.setString(16, "ConstantSpeed");
+        newObject.setDouble(17, 0.3);
+        newObject.setDouble(19, 32.1);
+        newObject.setDouble(20, 37.7);
+
+        ss << newObject;
+        m_refactored.emplace_back(std::move(object), std::move(newObject));
+
+      } else if (iddname == "OS:AirTerminal:SingleDuct:ParallelPIU:Reheat") {
+
+        // 5 Fields have been added from 3.8.0 to 3.9.0:
+        // ----------------------------------------------
+        // * Fan Control Type * 17
+        // * Minimum Fan Turn Down Ratio * 18
+        // * Heating Control Type * 19
+        // * Design Heating Discharge Air Temperature * 20
+        // * High Limit Heating Discharge Air Temperature * 21
+
+        auto iddObject = idd_3_9_0.getObject(iddname);
+        IdfObject newObject(iddObject.get());
+
+        for (size_t i = 0; i < object.numFields(); ++i) {
+          if ((value = object.getString(i))) {
+            if (i < 17) {
+              newObject.setString(i, value.get());
+            }
+          }
+        }
+
+        newObject.setString(17, "ConstantSpeed");
+        newObject.setDouble(18, 0.3);
+        newObject.setDouble(20, 32.1);
+        newObject.setDouble(21, 37.7);
+
+        ss << newObject;
+        m_refactored.emplace_back(std::move(object), std::move(newObject));
+
+      } else if (iddname == "OS:Chiller:Electric:EIR") {
+
+        // 3 required Fields has been added from 3.8.0 to 3.9.0:
+        // ----------------------------------------------
+        // * Condenser Flow Control * 35
+        // * Condenser Minimum Flow Fraction * 38
+        // * Thermosiphon Minimum Temperature Difference * 40
+
+        auto iddObject = idd_3_9_0.getObject(iddname);
+        IdfObject newObject(iddObject.get());
+
+        for (size_t i = 0; i < object.numFields(); ++i) {
+          if ((value = object.getString(i))) {
+            newObject.setString(i, value.get());
+          }
+        }
+
+        newObject.setString(35, "ConstantFlow");
+        newObject.setDouble(38, 0.2);
+        newObject.setDouble(40, 0.0);
+
+        ss << newObject;
+        m_refactored.emplace_back(std::move(object), std::move(newObject));
+
+      } else if (iddname == "OS:Chiller:Electric:ReformulatedEIR") {
+
+        // 3 required Fields has been added from 3.8.0 to 3.9.0:
+        // ----------------------------------------------
+        // * Condenser Flow Control * 31
+        // * Condenser Minimum Flow Fraction * 34
+        // * Thermosiphon Minimum Temperature Difference * 36
+
+        auto iddObject = idd_3_9_0.getObject(iddname);
+        IdfObject newObject(iddObject.get());
+
+        for (size_t i = 0; i < object.numFields(); ++i) {
+          if ((value = object.getString(i))) {
+            newObject.setString(i, value.get());
+          }
+        }
+
+        newObject.setString(31, "ConstantFlow");
+        newObject.setDouble(34, 0.2);
+        newObject.setDouble(36, 0.0);
+
+        ss << newObject;
+        m_refactored.emplace_back(std::move(object), std::move(newObject));
+
+      } else if (iddname == "OS:Fan:VariableVolume") {
+        std::string fanHandleStr = object.getString(0).get();
+        if (std::find(vrfFanVVHandleStrs.cbegin(), vrfFanVVHandleStrs.cend(), fanHandleStr) == vrfFanVVHandleStrs.cend()) {
+          ss << object;
+        } else {
+          IdfObject newObject(idd_3_9_0.getObject("OS:Fan:SystemModel").get());
+
+          // Handle
+          if ((value = object.getString(0))) {
+            newObject.setString(0, value.get());
+          }
+
+          // Name
+          if ((value = object.getString(1))) {
+            newObject.setString(1, value.get());
+          }
+
+          // Availability Schedule Name
+          if ((value = object.getString(2))) {
+            newObject.setString(2, value.get());
+          }
+
+          // Fan Total Efficiency
+          if ((value = object.getString(3, true))) {
+            newObject.setString(15, value.get());
+          }
+
+          // Pressure Rise
+          if ((value = object.getString(4, true))) {
+            newObject.setString(8, value.get());
+          }
+
+          // Maximum Flow Rate
+          if ((value = object.getString(5, true))) {
+            newObject.setString(5, value.get());
+          }
+
+          // Motor Efficiency
+          if ((value = object.getString(9, true))) {
+            newObject.setString(9, value.get());
+          }
+
+          // Motor In Airstream Fraction
+          if ((value = object.getString(10, true))) {
+            newObject.setString(10, value.get());
+          }
+
+          // Nodes should be blank since it's inside a containing ZoneHVAC
+          // Air Inlet Node Name
+          if ((value = object.getString(16))) {
+            newObject.setString(3, value.get());
+          }
+
+          // Air Outlet Node Name
+          if ((value = object.getString(17))) {
+            newObject.setString(4, value.get());
+          }
+
+          // End-Use Subcategory
+          if ((value = object.getString(18, true))) {
+            newObject.setString(21, value.get());
+          }
+
+          // Speed Control Method
+          newObject.setString(6, "Continuous");
+
+          // Electric Power Minimum Flow Rate Fraction
+          newObject.setDouble(7, 0.0);
+
+          // Design Electric Power Consumption
+          newObject.setString(11, "Autosize");
+
+          // Design Power Sizing Method
+          newObject.setString(12, "TotalEfficiencyAndPressure");
+
+          // Electric Power Per Unit Flow Rate (not used given Power Sizing Method, but required-field & set in Ctor)
+          newObject.setDouble(13, 840.0);
+
+          // Electric Power Per Unit Flow Rate Per Unit Pressure (not used given Power Sizing Method, but required-field & set in Ctor)
+          newObject.setDouble(14, 1.66667);
+
+          // OS:Curve:Quartic
+          // Create the new Curve:Quartic object and populate with Fan Power Coefficient i
+          IdfObject curveQuartic(idd_3_9_0.getObject("OS:Curve:Quartic").get());
+
+          // Handle
+          curveQuartic.setString(0, toString(createUUID()));
+
+          // Name
+          curveQuartic.setString(1, newObject.getString(1).get() + " Curve");
+
+          // Coefficient1 Constant
+          if ((value = object.getString(11, true))) {
+            curveQuartic.setString(2, value.get());
+          }
+
+          // Coefficient2 x
+          if ((value = object.getString(12, true))) {
+            curveQuartic.setString(3, value.get());
+          }
+
+          // Coefficient3 x**2
+          if ((value = object.getString(13, true))) {
+            curveQuartic.setString(4, value.get());
+          }
+
+          // Coefficient4 x**3
+          if ((value = object.getString(14, true))) {
+            curveQuartic.setString(5, value.get());
+          }
+
+          // Coefficient5 x**4
+          if ((value = object.getString(15, true))) {
+            curveQuartic.setString(6, value.get());
+          }
+
+          // Minimum Value of x
+          curveQuartic.setDouble(7, 0.0);
+
+          // Maximum Value of x
+          curveQuartic.setDouble(8, 1.0);
+
+          // Minimum Curve Output
+          curveQuartic.setDouble(9, 0.0);
+
+          // Maximum Curve Output
+          curveQuartic.setDouble(10, 5.0);
+
+          // Input Unit Type for X
+          curveQuartic.setString(11, "Dimensionless");
+
+          // Output Unit Type
+          curveQuartic.setString(12, "Dimensionless");
+
+          ss << curveQuartic;
+          m_new.push_back(curveQuartic);
+
+          // Electric Power Function of Flow Fraction Curve Name
+          newObject.setString(16, curveQuartic.getString(0).get());
+
+          // Night Ventilation Mode Pressure Rise
+          newObject.setString(17, "");
+
+          // Night Ventilation Mode Flow Fraction
+          newObject.setString(18, "");
+
+          // Motor Loss Zone Name
+          newObject.setString(19, "");
+
+          // Motor Loss Radiative Fraction
+          newObject.setDouble(20, 0.0);
+
+          m_refactored.emplace_back(std::move(object), std::move(newObject));
+          ss << newObject;
+        }
+
+      } else if (iddname == "OS:Sizing:Zone") {
+
+        // 1 required Field has been added from 3.8.0 to 3.9.0:
+        // ----------------------------------------------
+        // * Sizing Option * 39
+
+        auto iddObject = idd_3_9_0.getObject(iddname);
+        IdfObject newObject(iddObject.get());
+
+        for (size_t i = 0; i < object.numFields(); ++i) {
+          if ((value = object.getString(i))) {
+            newObject.setString(i, value.get());
+          }
+        }
+
+        newObject.setString(39, "Coincident");
+
+        ss << newObject;
+        m_refactored.emplace_back(std::move(object), std::move(newObject));
+
+        // No-op
+      } else {
+        ss << object;
+      }
+    }
+
+    return ss.str();
+
+  }  // end update_3_8_0_to_3_9_0
+
+  std::string VersionTranslator::update_3_9_0_to_3_9_1(const IdfFile& idf_3_9_0, const IddFileAndFactoryWrapper& idd_3_9_1) {
+    std::stringstream ss;
+    boost::optional<std::string> value;
+
+    ss << idf_3_9_0.header() << '\n' << '\n';
+    IdfFile targetIdf(idd_3_9_1.iddFile());
+    ss << targetIdf.versionObject().get();
+
+    for (const IdfObject& object : idf_3_9_0.objects()) {
+      auto iddname = object.iddObject().name();
+
+      if (iddname == "OS:WaterHeater:HeatPump") {
+
+        // 1 Field has been inserted from 3.9.0 to 3.9.1:
+        // ----------------------------------------------
+        // * Tank Element Control Logic * 25
+        auto iddObject = idd_3_9_1.getObject(iddname);
+        IdfObject newObject(iddObject.get());
+
+        for (size_t i = 0; i < object.numFields(); ++i) {
+          if ((value = object.getString(i))) {
+            if (i < 25) {
+              newObject.setString(i, value.get());
+            } else {
+              newObject.setString(i + 1, value.get());
+            }
+          }
+        }
+
+        newObject.setString(25, "Simultaneous");
+
+        ss << newObject;
+        m_refactored.emplace_back(std::move(object), std::move(newObject));
+
+      } else if (iddname == "OS:GroundHeatExchanger:Vertical") {
+
+        // 1 Field has been inserted from 3.9.0 to 3.9.1:
+        // ----------------------------------------------
+        // * Bore Hole Top Depth * 6
+
+        auto iddObject = idd_3_9_1.getObject(iddname);
+        IdfObject newObject(iddObject.get());
+
+        for (size_t i = 0; i < object.numFields(); ++i) {
+          if ((value = object.getString(i))) {
+            if (i < 6) {
+              newObject.setString(i, value.get());
+            } else {
+              newObject.setString(i + 1, value.get());
+            }
+          }
+        }
+
+        newObject.setDouble(6, 1.0);  // this value of 1 is what we previously had hardcoded in FT
+
+        ss << newObject;
+        m_refactored.emplace_back(std::move(object), std::move(newObject));
+
+        // No-op
+      } else {
+        ss << object;
+      }
+    }
+
+    return ss.str();
+
+  }  // end update_3_9_0_to_3_9_1
 
 }  // namespace osversion
 }  // namespace openstudio

@@ -4,8 +4,8 @@
 ***********************************************************************************************************************/
 
 #include "RubyEngine.hpp"
-#include "InitRubyBindings.hpp"
-#include "RubyException.hpp"
+#include "../bindings/InitRubyBindings.hpp"
+#include "../interpreter/RubyException.hpp"
 #include <embedded_files.hxx>
 #include <csignal>
 #include <stdexcept>
@@ -78,7 +78,7 @@ RubyEngine::~RubyEngine() {
   // ruby_cleanup calls ruby_finalize
   int ex = ruby_cleanup(0);
   if (ex != 0) {
-    fmt::print("RubyEngine return code was {}\n", ex);
+    // fmt::print("RubyEngine return code was {}\n", ex);
     exit(ex);
   }
   //ruby_finalize();

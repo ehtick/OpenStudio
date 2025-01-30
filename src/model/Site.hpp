@@ -37,7 +37,7 @@ namespace model {
     /** @name Constructors and Destructors */
     //@{
 
-    virtual ~Site() = default;
+    virtual ~Site() override = default;
     // Default the copy and move operators because the virtual dtor is explicit
     Site(const Site& other) = default;
     Site(Site&& other) = default;
@@ -76,6 +76,10 @@ namespace model {
 
     bool isTerrainDefaulted() const;
 
+    bool keepSiteLocationInformation() const;
+
+    bool isKeepSiteLocationInformationDefaulted() const;
+
     //@}
     /** @name Setters */
     //@{
@@ -99,6 +103,10 @@ namespace model {
     bool setTerrain(const std::string& terrain);
 
     void resetTerrain();
+
+    bool setKeepSiteLocationInformation(bool keepSiteLocationInformation);
+
+    void resetKeepSiteLocationInformation();
 
     //@}
 

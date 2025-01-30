@@ -234,7 +234,7 @@ void initializeOutFiles(GenerateIddFactoryOutFiles& outFiles, const std::vector<
                                   << "}" << '\n';
 
   // start other IddFactory cxx files
-  for (std::shared_ptr<IddFactoryOutFile>& cxxFile : outFiles.iddFactoryIddFileCxxs) {
+  for (const std::shared_ptr<IddFactoryOutFile>& cxxFile : outFiles.iddFactoryIddFileCxxs) {
     cxxFile->tempFile << "#include <utilities/idd/IddFactory.hxx>" << '\n'
                       << "#include <utilities/idd/IddEnums.hxx>" << '\n'
                       << '\n'
@@ -375,8 +375,7 @@ void completeOutFiles(const IddFileFactoryDataVector& iddFiles, GenerateIddFacto
           if (x < nx) {
             std::cout << std::setw(25) << includedFileData.second[x] << " ";
           } else {
-            std::cout << std::setw(25) << " "
-                      << " ";
+            std::cout << std::setw(25) << " " << " ";
           }
           if (y < ny) {
             std::cout << std::setw(25) << excludedObjects[y] << '\n';
@@ -384,7 +383,7 @@ void completeOutFiles(const IddFileFactoryDataVector& iddFiles, GenerateIddFacto
             std::cout << std::setw(25) << " " << '\n';
           }
         }  // for
-      }    // if
+      }  // if
 
     }  // for
 
@@ -751,7 +750,7 @@ void completeOutFiles(const IddFileFactoryDataVector& iddFiles, GenerateIddFacto
   outFiles.iddFactoryCxx.tempFile << '\n' << "} // openstudio" << '\n';
 
   // close out other IddFactory cxx files
-  for (std::shared_ptr<IddFactoryOutFile>& cxxFile : outFiles.iddFactoryIddFileCxxs) {
+  for (const std::shared_ptr<IddFactoryOutFile>& cxxFile : outFiles.iddFactoryIddFileCxxs) {
     cxxFile->tempFile << '\n' << "} // openstudio" << '\n';
   }
 
@@ -769,8 +768,7 @@ IddFileFactoryData getFile(const std::string& fileName, const IddFileFactoryData
 
   // unsuccessful search, throw an informative message
   std::stringstream ss;
-  ss << "Unable to located included Idd file '" << fileName << "' in list of Idd files. "
-     << "The available files are named:" << '\n';
+  ss << "Unable to located included Idd file '" << fileName << "' in list of Idd files. " << "The available files are named:" << '\n';
   for (const IddFileFactoryData& idd : iddFiles) {
     ss << "  " << idd.fileName() << '\n';
   }

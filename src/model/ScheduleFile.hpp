@@ -36,7 +36,7 @@ namespace model {
 
     ScheduleFile(const Model& model, const openstudio::path& filePath, int column = 1, int rowsToSkip = 0);
 
-    virtual ~ScheduleFile() = default;
+    virtual ~ScheduleFile() override = default;
     // Default the copy and move operators because the virtual dtor is explicit
     ScheduleFile(const ScheduleFile& other) = default;
     ScheduleFile(ScheduleFile&& other) = default;
@@ -47,6 +47,7 @@ namespace model {
 
     static IddObjectType iddObjectType();
 
+    static std::vector<std::string> columnSeparatorValues();
     static std::vector<std::string> minutesperItemValues();
 
     /** @name Getters */

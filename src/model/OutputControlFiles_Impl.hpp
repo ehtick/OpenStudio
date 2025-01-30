@@ -28,7 +28,7 @@ namespace model {
 
       OutputControlFiles_Impl(const OutputControlFiles_Impl& other, Model_Impl* model, bool keepHandle);
 
-      virtual ~OutputControlFiles_Impl() = default;
+      virtual ~OutputControlFiles_Impl() override = default;
 
       //@}
 
@@ -58,6 +58,8 @@ namespace model {
       bool outputJSON() const;
 
       bool outputAUDIT() const;
+
+      bool outputSpaceSizing() const;
 
       bool outputZoneSizing() const;
 
@@ -122,6 +124,8 @@ namespace model {
       bool setOutputJSON(bool outputJSON);
 
       bool setOutputAUDIT(bool outputAUDIT);
+
+      bool setOutputSpaceSizing(bool outputSpaceSizing);
 
       bool setOutputZoneSizing(bool outputZoneSizing);
 

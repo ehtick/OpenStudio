@@ -8,6 +8,7 @@
 
 #include "ModelAPI.hpp"
 #include "ParentObject.hpp"
+#include "../utilities/core/Deprecated.hpp"
 
 namespace openstudio {
 
@@ -19,19 +20,20 @@ namespace model {
 
   }  // namespace detail
 
-  class CurveQuadratic;
+  class Curve;
   class ScheduleCompact;
   class ControllerMechanicalVentilation;
   class AirLoopHVACOutdoorAirSystem;
   class AirflowNetworkOutdoorAirflow;
   class AirflowNetworkCrack;
+  class ThermalZone;
 
   class MODEL_API ControllerOutdoorAir : public ParentObject
   {
    public:
     explicit ControllerOutdoorAir(const Model& model);
 
-    virtual ~ControllerOutdoorAir() = default;
+    virtual ~ControllerOutdoorAir() override = default;
     // Default the copy and move operators because the virtual dtor is explicit
     ControllerOutdoorAir(const ControllerOutdoorAir& other) = default;
     ControllerOutdoorAir(ControllerOutdoorAir&& other) = default;
@@ -90,8 +92,9 @@ namespace model {
     bool setEconomizerMaximumLimitDewpointTemperature(double value);
     void resetEconomizerMaximumLimitDewpointTemperature();
 
-    //QuadraticCurve getElectronicEnthalpyLimitCurve() const;
-    //bool setElectronicEnthalpyLimitCurve(QuadraticCurve c);
+    boost::optional<Curve> electronicEnthalpyLimitCurve() const;
+    bool setElectronicEnthalpyLimitCurve(const Curve& curve);
+    void resetElectronicEnthalpyLimitCurve();
 
     //get needs to return a boost optional double since "" is a valid input
     boost::optional<double> getEconomizerMinimumLimitDryBulbTemperature() const;
@@ -105,15 +108,16 @@ namespace model {
     bool setMinimumLimitType(const std::string& value);
 
     boost::optional<bool> getHighHumidityControl() const;
-    bool setHighHumidityControl(bool val);
+    OS_DEPRECATED(3, 8, 0) bool setHighHumidityControl(bool val);
 
-    //Zone getHumidistatControlZone() const;
-    //bool setHumidistatControlZone(Zone z)
+    boost::optional<ThermalZone> humidistatControlZone() const;
+    bool setHumidistatControlZone(const ThermalZone& thermalZone);
+    void resetHumidistatControlZone();
 
-    boost::optional<double> getHighHumidityOutdoorAirFlowRatio() const;
+    double getHighHumidityOutdoorAirFlowRatio() const;
     bool setHighHumidityOutdoorAirFlowRatio(double v);
 
-    boost::optional<bool> getControlHighIndoorHumidityBasedOnOutdoorHumidityRatio() const;
+    bool getControlHighIndoorHumidityBasedOnOutdoorHumidityRatio() const;
     bool setControlHighIndoorHumidityBasedOnOutdoorHumidityRatio(bool v);
 
     boost::optional<std::string> getHeatRecoveryBypassControlType() const;
@@ -147,18 +151,6 @@ namespace model {
     explicit ControllerOutdoorAir(std::shared_ptr<detail::ControllerOutdoorAir_Impl> impl);
 
    private:
-    CurveQuadratic getElectronicEnthalpyLimitCurve() const;
-
-    ScheduleCompact getMinimumOutdoorAirSchedule() const;
-
-    ScheduleCompact getMinimumFractionOfOutdoorAirSchedule() const;
-
-    ScheduleCompact getMaximumFractionOfOutdoorAirSchedule() const;
-
-    //Controller:MechanicalVentilation getMechanicalVentilationController() const;
-
-    ScheduleCompact getTimeOfDayEconomizerControlSchedule() const;
-
     ControllerOutdoorAir(const Handle& handle, const Model& model);
 
     REGISTER_LOGGER("openstudio.model.ControllerOutdoorAir");

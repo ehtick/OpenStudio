@@ -41,7 +41,7 @@ namespace model {
 
     explicit GroundHeatExchangerVertical(const Model& model, const ModelObject& undisturbedGroundTemperatureModel);
 
-    virtual ~GroundHeatExchangerVertical() = default;
+    virtual ~GroundHeatExchangerVertical() override = default;
     // Default the copy and move operators because the virtual dtor is explicit
     GroundHeatExchangerVertical(const GroundHeatExchangerVertical& other) = default;
     GroundHeatExchangerVertical(GroundHeatExchangerVertical&& other) = default;
@@ -68,6 +68,8 @@ namespace model {
     boost::optional<double> designFlowRate() const;
 
     boost::optional<int> numberofBoreHoles() const;
+
+    double boreHoleTopDepth() const;
 
     boost::optional<double> boreHoleLength() const;
 
@@ -107,6 +109,8 @@ namespace model {
     bool setNumberofBoreHoles(int numberofBoreHoles);
 
     void resetNumberofBoreHoles();
+
+    bool setBoreHoleTopDepth(double boreHoleTopDepth);
 
     bool setBoreHoleLength(double boreHoleLength);
 

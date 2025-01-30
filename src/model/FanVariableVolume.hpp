@@ -13,8 +13,9 @@ namespace openstudio {
 
 namespace model {
 
-  class Schedule;
   class AirflowNetworkFan;
+  class FanSystemModel;
+  class Schedule;
 
   namespace detail {
 
@@ -34,7 +35,7 @@ namespace model {
 
     FanVariableVolume(const Model& model);
 
-    virtual ~FanVariableVolume() = default;
+    virtual ~FanVariableVolume() override = default;
     // Default the copy and move operators because the virtual dtor is explicit
     FanVariableVolume(const FanVariableVolume& other) = default;
     FanVariableVolume(FanVariableVolume&& other) = default;
@@ -163,10 +164,18 @@ namespace model {
 
     void resetEndUseSubcategory();
 
+    //@}
+    /** @name Other */
+    //@{
+
     AirflowNetworkFan getAirflowNetworkFan();
     boost::optional<AirflowNetworkFan> airflowNetworkFan() const;
 
     boost::optional<double> autosizedMaximumFlowRate() const;
+
+    // Convenience function to turn this FanVariableVolume to an equivalent FanSystemModel
+    FanSystemModel convertToFanSystemModel() const;
+
     //@}
    protected:
     /// @cond

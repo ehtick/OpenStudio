@@ -11,11 +11,12 @@
 namespace openstudio {
 namespace model {
 
-  class CurveQuadratic;
+  class Curve;
   class ScheduleCompact;
   class AirLoopHVACOutdoorAirSystem;
   class ControllerMechanicalVentilation;
   class AirflowNetworkOutdoorAirflow;
+  class ThermalZone;
 
   namespace detail {
 
@@ -32,7 +33,7 @@ namespace model {
       ControllerOutdoorAir_Impl(const ControllerOutdoorAir_Impl& other, Model_Impl* model, bool keepHandle);
 
       // virtual destructor
-      virtual ~ControllerOutdoorAir_Impl() = default;
+      virtual ~ControllerOutdoorAir_Impl() override = default;
 
       // Get all output variable names that could be associated with this object.
       virtual const std::vector<std::string>& outputVariableNames() const override;
@@ -67,8 +68,9 @@ namespace model {
       boost::optional<double> getEconomizerMaximumLimitDewpointTemperature() const;
       bool setEconomizerMaximumLimitDewpointTemperature(boost::optional<double> value);
 
-      //QuadraticCurve getElectronicEnthalpyLimitCurve() const;
-      //bool setElectronicEnthalpyLimitCurve(QuadraticCurve c);
+      boost::optional<Curve> electronicEnthalpyLimitCurve() const;
+      bool setElectronicEnthalpyLimitCurve(const Curve& curve);
+      void resetElectronicEnthalpyLimitCurve();
 
       //get needs to return a boost optional double since "" is a valid input
       boost::optional<double> getEconomizerMinimumLimitDryBulbTemperature() const;
@@ -81,15 +83,15 @@ namespace model {
       bool setMinimumLimitType(const std::string& value);
 
       boost::optional<bool> getHighHumidityControl() const;
-      bool setHighHumidityControl(bool val);
 
-      //Zone getHumidistatControlZone() const;
-      //bool setHumidistatControlZone(Zone z)
+      boost::optional<ThermalZone> humidistatControlZone() const;
+      bool setHumidistatControlZone(const ThermalZone& thermalZone);
+      void resetHumidistatControlZone();
 
-      OptionalDouble getHighHumidityOutdoorAirFlowRatio() const;
+      double getHighHumidityOutdoorAirFlowRatio() const;
       bool setHighHumidityOutdoorAirFlowRatio(double v);
 
-      boost::optional<bool> getControlHighIndoorHumidityBasedOnOutdoorHumidityRatio() const;
+      bool getControlHighIndoorHumidityBasedOnOutdoorHumidityRatio() const;
       bool setControlHighIndoorHumidityBasedOnOutdoorHumidityRatio(bool v);
 
       OptionalString getHeatRecoveryBypassControlType() const;
@@ -97,16 +99,6 @@ namespace model {
 
       std::string economizerOperationStaging() const;
       bool setEconomizerOperationStaging(const std::string& v);
-
-      CurveQuadratic getElectronicEnthalpyLimitCurve() const;
-
-      ScheduleCompact getMinimumOutdoorAirSchedule() const;
-
-      ScheduleCompact getMinimumFractionOfOutdoorAirSchedule() const;
-
-      ScheduleCompact getMaximumFractionOfOutdoorAirSchedule() const;
-
-      ScheduleCompact getTimeOfDayEconomizerControlSchedule() const;
 
       boost::optional<AirLoopHVACOutdoorAirSystem> airLoopHVACOutdoorAirSystem() const;
 
